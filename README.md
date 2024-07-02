@@ -31,6 +31,7 @@ https://gitmind.com/app/docs/fbk1bbwh
 
 ## Erd
 [https://dbdiagram.io/d/6682bb169939893daebad8ac](https://dbdiagram.io/d/6682bb169939893daebad8ac)
-<img width="939" alt="image" src="https://github.com/nueob/hhp-concert-ticketing/assets/79954748/e7ac7d41-383f-48eb-9e67-2c5f76625115">
+<img width="935" alt="image" src="https://github.com/nueob/hhp-concert-ticketing/assets/79954748/477db482-1c1f-4f96-bf35-af0965ea9ea2">
+
 
 
