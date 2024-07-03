@@ -3,6 +3,7 @@
 1. [Milestone](#Milestone)
 2. [Sequence_diagram](#Sequence_diagram)
 3. [Erd](#Erd)
+4. [MockAPI](#MockAPI)
 
 ## Milestone
 ![image](https://github.com/nueob/hhp-concert-ticketing/assets/79954748/50a0f8e2-a39b-4921-8edc-3c93d9d2952d)
@@ -33,6 +34,12 @@ https://gitmind.com/app/docs/fbk1bbwh
 ## Erd
 [https://dbdiagram.io/d/6682bb169939893daebad8ac](https://dbdiagram.io/d/6682bb169939893daebad8ac)
 <img width="935" alt="image" src="https://github.com/nueob/hhp-concert-ticketing/assets/79954748/477db482-1c1f-4f96-bf35-af0965ea9ea2">
+
+## MockAPI & API 명세서
+
+아래 링크를 통해 들어가시면 MockAPI & API 명세서를 볼 수 있습니다!<br>
+https://documenter.getpostman.com/view/29319211/2sA3dxEXEQ
+
 
 
 
