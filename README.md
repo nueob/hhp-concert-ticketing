@@ -28,7 +28,7 @@
 ## Sequence_diagram
 
 https://gitmind.com/app/docs/fbk1bbwh
-![콘서트 시퀀스 다이어그램](https://github.com/nueob/hhp-concert-ticketing/assets/79954748/586a4b4b-cfe1-4be9-b40f-3168af498054)
+![제목없음](https://github.com/nueob/hhp-concert-ticketing/assets/79954748/a7736c66-fbd3-4b07-bd80-3e49652a5e38)
 
 ## Erd
 [https://dbdiagram.io/d/6682bb169939893daebad8ac](https://dbdiagram.io/d/6682bb169939893daebad8ac)
