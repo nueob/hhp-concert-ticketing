@@ -1,3 +1,4 @@
+import { UserUseCase } from "src/application/useCase/interface/User.usecase.interface";
 import { UserFacade } from "../../../application/User.facade";
 import { UserPointResponseDTO } from "../../../presentation/dto/res/UserPoint.res.dto";
 import { UserController } from "../../../presentation/User.controller";
@@ -5,9 +6,10 @@ import { UserController } from "../../../presentation/User.controller";
 describe("UserController unit test", () => {
   let userController: UserController;
   let userFacade: UserFacade;
+  let userUseCase: UserUseCase;
 
   beforeAll(() => {
-    userFacade = new UserFacade();
+    userFacade = new UserFacade(userUseCase);
     userFacade.findPointByUuid = jest.fn();
     userFacade.chargePointByUuid = jest.fn();
 

@@ -5,7 +5,7 @@ import { UserService } from "../../../../domain/service/User.service";
 import { UserErrorCodeEnum } from "../../../../enum/UserErrorCode.enum";
 import { User } from "../../../../domain/User.domain";
 
-describe("accessToken을 생성한다.", () => {
+describe("AuthUseCaseImpl unit test", () => {
   let authUseCaseImpl: AuthUseCaseImpl;
   let jwtService: JwtService;
   let userService: UserService;
