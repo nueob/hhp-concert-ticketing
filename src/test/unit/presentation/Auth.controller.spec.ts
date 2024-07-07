@@ -1,3 +1,4 @@
+import { AuthUseCase } from "src/application/useCase/interface/Auth.usecase.interface";
 import { AuthFacade } from "../../../application/Auth.facade";
 import { AuthController } from "../../../presentation/Auth.controller";
 import { CreateApiKeyRequestDTO } from "../../../presentation/dto/req/CreateApiKey.req.dto";
@@ -6,9 +7,10 @@ import { CreateApiKeyResponseDTO } from "../../../presentation/dto/res/CreateApi
 describe("AuthController Unit Test", () => {
   let authController: AuthController;
   let authFacade: AuthFacade;
+  let authUseCase: AuthUseCase;
 
   beforeAll(() => {
-    authFacade = new AuthFacade();
+    authFacade = new AuthFacade(authUseCase);
     authFacade.createToken = jest.fn();
 
     authController = new AuthController(authFacade);
