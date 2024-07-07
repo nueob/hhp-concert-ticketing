@@ -45,14 +45,16 @@ https://gitmind.com/app/docs/fbk1bbwh
 
 ## Erd
 [https://dbdiagram.io/d/6682bb169939893daebad8ac](https://dbdiagram.io/d/6682bb169939893daebad8ac)
-<img width="935" alt="image" src="https://github.com/nueob/hhp-concert-ticketing/assets/79954748/477db482-1c1f-4f96-bf35-af0965ea9ea2">
+![Untitled (1)](https://github.com/nueob/hhp-concert-ticketing/assets/79954748/42c0f885-d6b8-4f5c-8def-eae6afd1e2bc)
+
 - (확장성) 콘서트 날짜마다 다른 대관 장소일 가능성을 고려하여 콘서트와 대관 장소를 분리하여 구상하였습니다.
 - (확장성) 콘서트 세부 option 추가 시 concert_option에 추가할 수 있습니다.
 - (확장성) 대관 장소 이외에 테이블로 분리되어야 하는 항목이 생길 때, 해당 테이블을 만들고 concert_ticketing_info 외래키(논리적) 컬럼으로 넣을 수 있습니다.
-- order_ticket 테이블을 이용하여 결제 당시 금액을 저장할 수 있으며 step으로 상태관리를 할 수 있습니다.
-- order_ticket 테이블에서 결제가 완료된 건은 '예약 확정 된 티켓'으로 볼 수 있습니다.
+- order_ticket 테이블을 step을 이용하여 결제 status를 관리할 수 있습니다.
+- order_ticket_into 테이블을 이용하여 결제 당시 금액 등 정보를 정적으로 보관할 수 있습니다.
 - user 테이블의 refresh_token을 저장하여 사용자 인증할 때 access_token 만료 시 데이터를 불러올 수 있습니다.
 - user 포인트 사용내역을 저장하여 point의 무결성을 입증할 수 있습니다.
+- user_queue를 이용하여 대기열을 관리할 수 있습니다.
   
 ## MockAPI & API 명세서
 
