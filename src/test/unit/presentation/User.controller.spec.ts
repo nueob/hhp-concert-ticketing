@@ -1,4 +1,4 @@
-import { UserUseCase } from "src/application/useCase/interface/User.usecase.interface";
+import { UserUseCase } from "../../../application/useCase/interface/User.usecase.interface";
 import { UserFacade } from "../../../application/User.facade";
 import { UserPointResponseDTO } from "../../../presentation/dto/res/UserPoint.res.dto";
 import { UserController } from "../../../presentation/User.controller";
