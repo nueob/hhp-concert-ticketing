@@ -45,7 +45,7 @@ export class ConcertController {
 
   @Get("/:concertId/:performanceId/available-seats")
   @HttpCode(HttpStatus.OK)
-  async findReservationAvailableSeat(
+  async findReservationAvailableSeatCount(
     @Param("concertId") concertId: number,
     @Param("performanceId") performanceId: number,
   ): Promise<FindReservationAvailableSeatResponseDTO> {

@@ -1,25 +1,28 @@
 import { ReservationTicket } from "../domain/ReservationTicket.domain";
 import { Concert } from "../domain/Concert.domain";
+import { ConcertUsecase } from "./useCase/interface/Concert.usecase.interface";
 
 export class ConcertFacade {
-  async getAllConcertList(): Promise<Concert[]> {
-    return Promise.resolve([new Concert()]);
+  constructor(private readonly concertUsecase: ConcertUsecase) {}
+
+  getAllConcertList(): Promise<Concert[]> {
+    return this.concertUsecase.findAll();
   }
 
-  async getAvailableDateList(concertId: number): Promise<Concert[]> {
-    return Promise.resolve([new Concert()]);
+  getAvailableDateList(concertId: number): Promise<Concert[]> {
+    return this.concertUsecase.findConcertById(concertId);
   }
 
-  async getAvailableSeatCount(
+  getAvailableSeatCount(
     concertId: number,
     performanceId: number,
   ): Promise<number> {
-    return Promise.resolve(1);
+    return this.concertUsecase.findAvailableSeatCount(concertId, performanceId);
   }
 
   reservation(
     reservationTicket: ReservationTicket,
   ): Promise<ReservationTicket> {
-    return Promise.resolve(reservationTicket);
+    return this.concertUsecase.reservation(reservationTicket);
   }
 }

@@ -7,16 +7,18 @@ import { FindAllConcertListResponseDTO } from "../../../presentation/dto/res/Fin
 import { ReservationTicket } from "../../../domain/ReservationTicket.domain";
 import { ReservationConcertRequestDTO } from "../../../presentation/dto/req/ReservationConcert.req.dto";
 import { ReservationConcertResponseDTO } from "../../../presentation/dto/res/ReservationConcert.res.dto";
+import { ConcertUsecase } from "../../../application/useCase/interface/Concert.usecase.interface";
 
 describe("ConcertController Unit Test", () => {
   let concertController: ConcertController;
   let concertFacade: ConcertFacade;
+  let concertUsecase: ConcertUsecase;
 
   beforeAll(() => {
     jest.useFakeTimers();
     jest.setSystemTime();
 
-    concertFacade = new ConcertFacade();
+    concertFacade = new ConcertFacade(concertUsecase);
     concertFacade.getAllConcertList = jest
       .fn()
       .mockResolvedValue(Promise.resolve([new Concert()]));
@@ -65,7 +67,7 @@ describe("ConcertController Unit Test", () => {
     const concertId = 1;
     const concertTicketingInfoId = 1;
     //when
-    const response = await concertController.findReservationAvailableSeat(
+    const response = await concertController.findReservationAvailableSeatCount(
       concertId,
       concertTicketingInfoId,
     );

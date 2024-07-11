@@ -1,7 +1,7 @@
 export class UserPointResponseDTO {
   private readonly _point: number;
 
-  constructor(point: number) {
+  constructor(point?: number) {
     this._point = point;
   }
 

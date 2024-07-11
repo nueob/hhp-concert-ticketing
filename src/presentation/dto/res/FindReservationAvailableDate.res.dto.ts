@@ -1,4 +1,4 @@
-import { Concert } from "@root/domain/Concert.domain";
+import { Concert } from "../../../domain/Concert.domain";
 
 export class FindReservationAvailableDateResponseDTO {
   private readonly _performanceId: number;
