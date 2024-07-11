@@ -17,13 +17,21 @@ export class ConcertService {
   }
 
   async findById(concertId: number): Promise<Concert> {
-    const concertList =
-      await this.concertRepositoryInterface.findById(concertId);
-    if (!concertList) {
+    const concert = await this.concertRepositoryInterface.findById(concertId);
+    if (!concert) {
       throw new Error(ConcertErrorCodeEnum.존재하지_않는_콘서트.message);
     }
 
-    return concertList;
+    return concert;
+  }
+
+  async findBySeatId(seatId: number): Promise<Concert> {
+    const concert = await this.concertRepositoryInterface.findBySeatId(seatId);
+    if (!concert) {
+      throw new Error(ConcertErrorCodeEnum.존재하지_않는_콘서트.message);
+    }
+
+    return concert;
   }
 
   async findPerformanceBySeatId(seatId: number): Promise<Performance> {

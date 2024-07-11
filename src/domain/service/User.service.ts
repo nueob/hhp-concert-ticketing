@@ -20,6 +20,10 @@ export class UserService {
     return user;
   }
 
+  usePoint(uuid: string, amount: number): Promise<void> {
+    return this.userRepositoryInterface.usePoint(uuid, amount);
+  }
+
   chargePoint(uuid: string, amount: number): Promise<void> {
     return this.userRepositoryInterface.chargePoint(uuid, amount);
   }
@@ -32,7 +36,7 @@ export class UserService {
     return this.userRepositoryInterface.insertPointHistory(
       uuid,
       amount,
-      transactionType
+      transactionType,
     );
   }
 }

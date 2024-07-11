@@ -19,6 +19,14 @@ export class ReservationTicket {
     this._createdAt = createdAt;
   }
 
+  public validTicket(): boolean {
+    const fiveMinutesLater = new Date(
+      this._createdAt.getTime() + 5 * 60 * 1000,
+    );
+
+    return new Date() < fiveMinutesLater;
+  }
+
   get id(): number {
     return this._id;
   }

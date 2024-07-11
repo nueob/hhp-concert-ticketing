@@ -19,6 +19,7 @@ describe("ConcertService unit test", () => {
           useValue: {
             findAll: jest.fn(),
             findById: jest.fn(),
+            findBySeatId: jest.fn(),
             findPerformanceBySeatId: jest.fn(),
             saveReservationTicket: jest.fn(),
           },
@@ -60,6 +61,34 @@ describe("ConcertService unit test", () => {
       //then
       expect(response).toStrictEqual(concert);
       expect(concertRepositoryInterface.findById).toHaveBeenCalled();
+    });
+  });
+
+  describe("findBySeatId: 좌석 정보를 통해 특정 콘서트를 반환한다.", () => {
+    test("정상 요청", async () => {
+      //given
+      const seatId = 1;
+      const concert = new Concert();
+      jest
+        .spyOn(concertRepositoryInterface, "findBySeatId")
+        .mockResolvedValue(concert);
+      //when
+      const response = await concertService.findBySeatId(seatId);
+      //then
+      expect(response).toStrictEqual(concert);
+      expect(concertRepositoryInterface.findBySeatId).toHaveBeenCalled();
+    });
+    test("콘서트가 없을 경우 에러를 던진다.", async () => {
+      //given
+      const seatId = 1;
+      jest
+        .spyOn(concertRepositoryInterface, "findBySeatId")
+        .mockResolvedValue(null);
+      //when
+      //then
+      await expect(concertService.findBySeatId(seatId)).rejects.toThrow(
+        new Error(ConcertErrorCodeEnum.존재하지_않는_콘서트.message),
+      );
     });
   });
 

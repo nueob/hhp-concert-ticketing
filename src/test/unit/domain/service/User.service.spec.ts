@@ -17,6 +17,7 @@ describe("UserService unit test", () => {
           provide: "UserRepositoryInterface",
           useValue: {
             findByUuid: jest.fn(),
+            usePoint: jest.fn(),
             chargePoint: jest.fn(),
             insertPointHistory: jest.fn(),
           },
@@ -60,7 +61,19 @@ describe("UserService unit test", () => {
     });
   });
 
-  describe("chargePointByUuid: 포인트를 충전한다.", () => {
+  describe("usePoint: 포인트를 사용한다.", () => {
+    test("정상 요청", async () => {
+      //given
+      const uuid = "00001";
+      const amount = 1000;
+      //when
+      await userService.usePoint(uuid, amount);
+      //then
+      expect(userRepositoryInterface.usePoint).toHaveBeenCalled();
+    });
+  });
+
+  describe("chargePoint: 포인트를 충전한다.", () => {
     test("정상 요청", async () => {
       //given
       const uuid = "00001";
