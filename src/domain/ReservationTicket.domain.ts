@@ -22,6 +22,13 @@ export class ReservationTicket {
     this._createdAt = createdAt;
   }
 
+  public hasFiveMinutesPassed() {
+    const afterFiveMinutes = new Date(this.createdAt);
+    afterFiveMinutes.setMinutes(afterFiveMinutes.getMinutes() + 5);
+
+    return afterFiveMinutes < new Date();
+  }
+
   get id(): number {
     return this._id;
   }
