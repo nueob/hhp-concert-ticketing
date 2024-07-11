@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { ReservationTicket } from "../../../domain/ReservationTicket.domain";
 
 export class ReservationConcertResponseDTO {
@@ -7,6 +8,7 @@ export class ReservationConcertResponseDTO {
     this._reservationTicketId = reservationTicket.id;
   }
 
+  @ApiProperty()
   get reservationTicketId(): number {
     return this._reservationTicketId;
   }

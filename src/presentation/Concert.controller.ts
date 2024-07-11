@@ -15,14 +15,34 @@ import { FindReservationAvailableDateResponseDTO } from "./dto/res/FindReservati
 import { FindAllConcertListResponseDTO } from "./dto/res/FindAllConcertList.dto";
 import { ReservationConcertRequestDTO } from "./dto/req/ReservationConcert.req.dto";
 import { ReservationConcertResponseDTO } from "./dto/res/ReservationConcert.res.dto";
+import { ApiExtraModels, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import {
+  FindAllDocs,
+  FindReservationAvailableDateDocs,
+  FindReservationAvailableDateErrorReponse,
+  FindReservationAvailableSeatDocs,
+  FindReservationAvailableSeatErrorReponse,
+  ReservationDocs,
+  ReservationErrorResponse,
+} from "./swaggerDocs/ConcertDocs";
 
+@ApiTags("콘서트 API")
 @Controller("/concerts")
+@ApiExtraModels(
+  FindReservationAvailableDateResponseDTO,
+  FindAllConcertListResponseDTO,
+  FindReservationAvailableSeatResponseDTO,
+  ReservationConcertRequestDTO,
+  ReservationConcertResponseDTO,
+)
 export class ConcertController {
   constructor(private readonly concertFacade: ConcertFacade) {}
 
   @Get()
+  @FindAllDocs()
+  @ApiOkResponse({ type: [FindAllConcertListResponseDTO] })
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<FindReservationAvailableDateResponseDTO[]> {
+  async findAll(): Promise<FindAllConcertListResponseDTO[]> {
     const concertList = await this.concertFacade.getAllConcertList();
 
     return concertList.map(
@@ -31,6 +51,9 @@ export class ConcertController {
   }
 
   @Get("/:concertId/dates")
+  @FindReservationAvailableDateDocs()
+  @FindReservationAvailableDateErrorReponse()
+  @ApiOkResponse({ type: FindReservationAvailableDateResponseDTO })
   @HttpCode(HttpStatus.OK)
   async findReservationAvailableDate(
     @Param("concertId") concertId: number,
@@ -41,6 +64,9 @@ export class ConcertController {
   }
 
   @Get("/:concertId/:performanceId/available-seats")
+  @FindReservationAvailableSeatDocs()
+  @FindReservationAvailableSeatErrorReponse()
+  @ApiOkResponse({ type: [FindReservationAvailableSeatResponseDTO] })
   @HttpCode(HttpStatus.OK)
   async findReservationAvailableSeat(
     @Param("concertId") concertId: number,
@@ -57,6 +83,9 @@ export class ConcertController {
   }
 
   @Post("/reservation")
+  @ReservationDocs()
+  @ReservationErrorResponse()
+  @ApiOkResponse({ type: ReservationConcertResponseDTO })
   @HttpCode(HttpStatus.OK)
   async reservation(
     @Body() reservationConcertRequestDTO: ReservationConcertRequestDTO,

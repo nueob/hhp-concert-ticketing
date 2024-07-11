@@ -1,6 +1,7 @@
 import { HttpStatus } from "@nestjs/common";
+import { ErrorCodeEnum } from "./ErrorCode.enum";
 
-export class ConcertErrorCodeEnum {
+export class ConcertErrorCodeEnum extends ErrorCodeEnum {
   static readonly 존재하지_않는_콘서트 = new ConcertErrorCodeEnum(
     "존재하지 않는 콘서트 입니다.",
     HttpStatus.BAD_REQUEST,
@@ -18,19 +19,7 @@ export class ConcertErrorCodeEnum {
     HttpStatus.BAD_REQUEST,
   );
 
-  private readonly _message: string;
-  private readonly _httpCode: HttpStatus;
-
   constructor(message: string, httpCode: HttpStatus) {
-    this._message = message;
-    this._httpCode = httpCode;
-  }
-
-  get message(): string {
-    return this._message;
-  }
-
-  get httpCode(): HttpStatus {
-    return this._httpCode;
+    super(message, httpCode);
   }
 }

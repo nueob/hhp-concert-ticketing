@@ -10,12 +10,22 @@ import {
 import { UserPointResponseDTO } from "./dto/res/UserPoint.res.dto";
 import { UserFacade } from "../application/User.facade";
 import { ChargeUserPointRequestDTO } from "./dto/req/ChargeUserPoint.req.dto";
-
+import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  ChargeUserPointDocs,
+  ChargeUserPointErrorResponse,
+  FindUserPointDocs,
+  FindUserPointErrorResponse,
+} from "./swaggerDocs/UserDocs";
+@ApiTags("사용자 포인트 API")
 @Controller("/users")
 export class UserController {
   constructor(private readonly userFacade: UserFacade) {}
 
   @Get("/:uuid/point")
+  @FindUserPointDocs()
+  @FindUserPointErrorResponse()
+  @ApiOkResponse({ type: UserPointResponseDTO })
   @HttpCode(HttpStatus.OK)
   async findUserPoint(
     @Param("uuid") uuid: string,
@@ -26,6 +36,8 @@ export class UserController {
   }
 
   @Put("/:uuid/point")
+  @ChargeUserPointDocs()
+  @ChargeUserPointErrorResponse()
   @HttpCode(HttpStatus.OK)
   async chargeUserPoint(
     @Param("uuid") uuid: string,

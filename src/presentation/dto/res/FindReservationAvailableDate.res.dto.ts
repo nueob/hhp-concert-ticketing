@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Concert } from "../../../domain/Concert.domain";
 import { Performance } from "../../../domain/Performance.domain";
 
@@ -12,14 +13,17 @@ class PerformanceDTO {
     this._ticketingEndAt = performance.ticketingEndAt;
   }
 
+  @ApiProperty()
   get id(): number {
     return this._id;
   }
 
+  @ApiProperty()
   get ticketingStartAt(): Date {
     return this._ticketingStartAt;
   }
 
+  @ApiProperty()
   get ticketingEndAt(): Date {
     return this._ticketingEndAt;
   }
@@ -36,10 +40,12 @@ export class FindReservationAvailableDateResponseDTO {
     );
   }
 
+  @ApiProperty()
   get name(): string {
     return this._name;
   }
 
+  @ApiProperty({ type: [PerformanceDTO] })
   get performanceList(): PerformanceDTO[] {
     return this._performanceList;
   }
