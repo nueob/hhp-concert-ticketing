@@ -6,23 +6,16 @@ export class ReservationConcertRequestDTO {
   @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
-  performanceId: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsNotEmpty()
   seatId: number;
 
-  constructor(performanceId: number, searId: number) {
-    this.performanceId = performanceId;
-    this.seatId = searId;
+  constructor(seatId: number) {
+    this.seatId = seatId;
   }
 
   public toDomain(userUuid) {
     return new ReservationTicket(
       null,
       userUuid,
-      this.performanceId,
       this.seatId,
       false,
       new Date(),

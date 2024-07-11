@@ -1,11 +1,25 @@
-export class FindReservationAvailableSeatResponseDTO {
-  private readonly _availableForReservationCount: number;
+import { Seat } from "../../../domain/Seat.domain";
 
-  constructor(availableForReservationCount: number) {
-    this._availableForReservationCount = availableForReservationCount;
+export class FindReservationAvailableSeatResponseDTO {
+  private readonly _id: number;
+  private readonly _seatNo: number;
+  private readonly _price: number;
+
+  constructor(seat: Seat) {
+    this._id = seat.id;
+    this._seatNo = seat.seatNo;
+    this._price = seat.price;
   }
 
-  get availableForReservationCount(): number {
-    return this._availableForReservationCount;
+  get id(): number {
+    return this._id;
+  }
+
+  get seatNo(): number {
+    return this._seatNo;
+  }
+
+  get price(): number {
+    return this._price;
   }
 }

@@ -7,30 +7,30 @@ import { FindAllConcertListResponseDTO } from "../../../presentation/dto/res/Fin
 import { ReservationTicket } from "../../../domain/ReservationTicket.domain";
 import { ReservationConcertRequestDTO } from "../../../presentation/dto/req/ReservationConcert.req.dto";
 import { ReservationConcertResponseDTO } from "../../../presentation/dto/res/ReservationConcert.res.dto";
+import { ConcertService } from "../../../domain/service/Concert.service";
 
 describe("ConcertController Unit Test", () => {
   let concertController: ConcertController;
   let concertFacade: ConcertFacade;
+  let concertService: ConcertService;
 
   beforeAll(() => {
     jest.useFakeTimers();
     jest.setSystemTime();
 
-    concertFacade = new ConcertFacade();
+    concertFacade = new ConcertFacade(concertService);
     concertFacade.getAllConcertList = jest
       .fn()
       .mockResolvedValue(Promise.resolve([new Concert()]));
     concertFacade.getAvailableDateList = jest
       .fn()
       .mockResolvedValue(Promise.resolve([new Concert()]));
-    concertFacade.getAvailableSeatCount = jest
+    concertFacade.getAvailableSeat = jest
       .fn()
-      .mockResolvedValue(Promise.resolve(1));
+      .mockResolvedValue(Promise.resolve([{}]));
     concertFacade.reservation = jest
       .fn()
-      .mockResolvedValue(
-        new ReservationTicket(null, 1, 1, 1, false, new Date()),
-      );
+      .mockResolvedValue(new ReservationTicket(null, 1, 1, false, new Date()));
     concertController = new ConcertController(concertFacade);
   });
 
@@ -53,10 +53,7 @@ describe("ConcertController Unit Test", () => {
     const response =
       await concertController.findReservationAvailableDate(concertId);
     //then
-    expect(response).toBeInstanceOf(Array);
-    response.forEach((res) =>
-      expect(res).toBeInstanceOf(FindReservationAvailableDateResponseDTO),
-    );
+    expect(response).toBeInstanceOf(FindReservationAvailableDateResponseDTO);
     expect(concertFacade.getAvailableDateList).toHaveBeenCalled();
   });
 
@@ -70,24 +67,24 @@ describe("ConcertController Unit Test", () => {
       concertTicketingInfoId,
     );
     //then
-    expect(response).toStrictEqual(
-      new FindReservationAvailableSeatResponseDTO(1),
+    expect(response).toBeInstanceOf(Array);
+    response.forEach((res) =>
+      expect(res).toBeInstanceOf(FindReservationAvailableSeatResponseDTO),
     );
-    expect(concertFacade.getAvailableSeatCount).toHaveBeenCalled();
+    expect(concertFacade.getAvailableSeat).toHaveBeenCalled();
   });
 
   test("reservation: 좌석을 예약한다.", async () => {
     //given
-    const performanceId = 1;
     const seatId = 1;
     //when
     const response = await concertController.reservation(
-      new ReservationConcertRequestDTO(performanceId, seatId),
+      new ReservationConcertRequestDTO(seatId),
     );
     //then
     expect(response).toStrictEqual(
       new ReservationConcertResponseDTO(
-        new ReservationTicket(null, 1, 1, 1, false, new Date()),
+        new ReservationTicket(null, 1, 1, false, new Date()),
       ),
     );
     expect(concertFacade.reservation).toHaveBeenCalled();

@@ -1,24 +1,19 @@
-import { Concert } from "@root/domain/Concert.domain";
+import { Concert } from "../../../domain/Concert.domain";
+import { Performance } from "../../../domain/Performance.domain";
 
-export class FindReservationAvailableDateResponseDTO {
-  private readonly _performanceId: number;
-  private readonly _name: string;
+class PerformanceDTO {
+  private readonly _id: number;
   private readonly _ticketingStartAt: Date;
   private readonly _ticketingEndAt: Date;
 
-  constructor(concert?: Concert) {
-    this._performanceId = concert?.performance?.id;
-    this._name = concert?.name;
-    this._ticketingStartAt = concert?.performance?.ticketingStartAt;
-    this._ticketingEndAt = concert?.performance?.ticketingEndAt;
+  constructor(performance: Performance) {
+    this._id = performance.id;
+    this._ticketingStartAt = performance.ticketingStartAt;
+    this._ticketingEndAt = performance.ticketingEndAt;
   }
 
-  get performanceId(): number {
-    return this._performanceId;
-  }
-
-  get name(): string {
-    return this._name;
+  get id(): number {
+    return this._id;
   }
 
   get ticketingStartAt(): Date {
@@ -27,5 +22,25 @@ export class FindReservationAvailableDateResponseDTO {
 
   get ticketingEndAt(): Date {
     return this._ticketingEndAt;
+  }
+}
+
+export class FindReservationAvailableDateResponseDTO {
+  private readonly _name: string;
+  private readonly _performanceList: PerformanceDTO[];
+
+  constructor(concert?: Concert) {
+    this._name = concert?.name;
+    this._performanceList = concert?.performanceList?.map(
+      (performance) => new PerformanceDTO(performance),
+    );
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get performanceList(): PerformanceDTO[] {
+    return this._performanceList;
   }
 }

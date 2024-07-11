@@ -34,12 +34,9 @@ export class ConcertController {
   @HttpCode(HttpStatus.OK)
   async findReservationAvailableDate(
     @Param("concertId") concertId: number,
-  ): Promise<FindReservationAvailableDateResponseDTO[]> {
-    const concertList =
-      await this.concertFacade.getAvailableDateList(concertId);
-
-    return concertList.map(
-      (concert) => new FindReservationAvailableDateResponseDTO(concert),
+  ): Promise<FindReservationAvailableDateResponseDTO> {
+    return new FindReservationAvailableDateResponseDTO(
+      await this.concertFacade.getAvailableDateList(concertId),
     );
   }
 
@@ -48,9 +45,14 @@ export class ConcertController {
   async findReservationAvailableSeat(
     @Param("concertId") concertId: number,
     @Param("performanceId") performanceId: number,
-  ): Promise<FindReservationAvailableSeatResponseDTO> {
-    return new FindReservationAvailableSeatResponseDTO(
-      await this.concertFacade.getAvailableSeatCount(concertId, performanceId),
+  ): Promise<FindReservationAvailableSeatResponseDTO[]> {
+    const seatList = await this.concertFacade.getAvailableSeat(
+      concertId,
+      performanceId,
+    );
+
+    return seatList.map(
+      (seat) => new FindReservationAvailableSeatResponseDTO(seat),
     );
   }
 
