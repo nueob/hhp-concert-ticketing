@@ -3,6 +3,7 @@ import { UserService } from "../../../../domain/service/User.service";
 import { User } from "../../../../domain/User.domain";
 import { UserRepositoryInterface } from "../../../../domain/repository/User.repository.interface";
 import { UserErrorCodeEnum } from "../../../../enum/UserErrorCode.enum";
+import { PointTransactionTypeEnum } from "../../../../enum/PointTransactionType.enum";
 
 describe("UserService unit test", () => {
   let userService: UserService;
@@ -16,6 +17,8 @@ describe("UserService unit test", () => {
           provide: "UserRepositoryInterface",
           useValue: {
             findByUuid: jest.fn(),
+            chargePoint: jest.fn(),
+            insertPointHistory: jest.fn(),
           },
         },
       ],
@@ -54,6 +57,31 @@ describe("UserService unit test", () => {
       await expect(userService.findByUuid(uuid)).rejects.toThrow(
         new Error(UserErrorCodeEnum.존재하지_않는_유저.message),
       );
+    });
+  });
+
+  describe("chargePointByUuid: 포인트를 충전한다.", () => {
+    test("정상 요청", async () => {
+      //given
+      const uuid = "00001";
+      const amount = 1000;
+      //when
+      await userService.chargePoint(uuid, amount);
+      //then
+      expect(userRepositoryInterface.chargePoint).toHaveBeenCalled();
+    });
+  });
+
+  describe("insertPointHistory: 포인트를 히스토리를 저장한다.", () => {
+    test("정상 요청", async () => {
+      //given
+      const uuid = "00001";
+      const amount = 1000;
+      const transactionType = PointTransactionTypeEnum.사용;
+      //when
+      await userService.insertPointHistory(uuid, amount, transactionType);
+      //then
+      expect(userRepositoryInterface.insertPointHistory).toHaveBeenCalled();
     });
   });
 });

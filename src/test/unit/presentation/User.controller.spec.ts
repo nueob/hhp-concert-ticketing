@@ -1,3 +1,4 @@
+import { UserService } from "@root/domain/service/User.service";
 import { UserFacade } from "../../../application/User.facade";
 import { UserPointResponseDTO } from "../../../presentation/dto/res/UserPoint.res.dto";
 import { UserController } from "../../../presentation/User.controller";
@@ -5,9 +6,10 @@ import { UserController } from "../../../presentation/User.controller";
 describe("UserController unit test", () => {
   let userController: UserController;
   let userFacade: UserFacade;
+  let userService: UserService;
 
   beforeAll(() => {
-    userFacade = new UserFacade();
+    userFacade = new UserFacade(userService);
     userFacade.findPointByUuid = jest.fn();
     userFacade.chargePointByUuid = jest.fn();
 

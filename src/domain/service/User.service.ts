@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { PointTransactionTypeEnum } from "../../enum/PointTransactionType.enum";
 import { User } from "../User.domain";
 import { UserRepositoryInterface } from "../repository/User.repository.interface";
 import { UserErrorCodeEnum } from "../../enum/UserErrorCode.enum";
@@ -17,5 +18,21 @@ export class UserService {
     }
 
     return user;
+  }
+
+  chargePoint(uuid: string, amount: number): Promise<void> {
+    return this.userRepositoryInterface.chargePoint(uuid, amount);
+  }
+
+  insertPointHistory(
+    uuid: string,
+    amount: number,
+    transactionType: PointTransactionTypeEnum,
+  ): Promise<void> {
+    return this.userRepositoryInterface.insertPointHistory(
+      uuid,
+      amount,
+      transactionType
+    );
   }
 }
