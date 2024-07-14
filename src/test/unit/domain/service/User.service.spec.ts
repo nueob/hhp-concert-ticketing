@@ -17,6 +17,7 @@ describe("UserService unit test", () => {
           provide: "UserRepositoryInterface",
           useValue: {
             findByUuid: jest.fn(),
+            createWaitingQueue: jest.fn(),
             usePoint: jest.fn(),
             chargePoint: jest.fn(),
             insertPointHistory: jest.fn(),
@@ -58,6 +59,17 @@ describe("UserService unit test", () => {
       await expect(userService.findByUuid(uuid)).rejects.toThrow(
         new Error(UserErrorCodeEnum.존재하지_않는_유저.message),
       );
+    });
+  });
+
+  describe("createWaitingQueue: 대기열에 등록한다.", () => {
+    test("정상 요청", async () => {
+      //given
+      const uuid = "00001";
+      //when
+      await userService.createWaitingQueue(uuid);
+      //then
+      expect(userRepositoryInterface.createWaitingQueue).toHaveBeenCalled();
     });
   });
 

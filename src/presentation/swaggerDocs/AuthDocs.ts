@@ -13,5 +13,8 @@ export function AuthDocs() {
 }
 
 export function AuthErrorResponse() {
-  return ApiErrorResponse([UserErrorCodeEnum.존재하지_않는_유저]);
+  return ApiErrorResponse([
+    UserErrorCodeEnum.존재하지_않는_유저,
+    UserErrorCodeEnum.이미_발급받은_토큰,
+  ]);
 }

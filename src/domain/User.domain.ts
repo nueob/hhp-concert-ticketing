@@ -1,19 +1,23 @@
+import { WaitingQueueStatusEnum } from "../enum/WaitingQueueStatus.enum";
+import { WaitingQueue } from "./WaitingQueue.domain";
+
 export class User {
   private readonly _uuid: string;
   private readonly _point: number;
-  private readonly _refreshToken: string;
-  private readonly _expiredDate: Date;
+  private readonly _waitingQueue: WaitingQueue;
 
-  constructor(
-    uuid?: string,
-    point?: number,
-    refreshToken?: string,
-    expiredDate?: Date,
-  ) {
+  constructor(uuid?: string, point?: number, waitingQueue?: WaitingQueue) {
     this._uuid = uuid;
     this._point = point;
-    this._refreshToken = refreshToken;
-    this._expiredDate = expiredDate;
+    this._waitingQueue = waitingQueue;
+  }
+
+  public isWaiting(): boolean {
+    return this.waitingQueue?.status === WaitingQueueStatusEnum.대기;
+  }
+
+  public isActive(): boolean {
+    return this.waitingQueue?.status === WaitingQueueStatusEnum.활성화;
   }
 
   get uuid(): string {
@@ -24,11 +28,7 @@ export class User {
     return this._point;
   }
 
-  get refreshToken(): string {
-    return this._refreshToken;
-  }
-
-  get expiredDate(): Date {
-    return this._expiredDate;
+  get waitingQueue(): WaitingQueue {
+    return this._waitingQueue;
   }
 }

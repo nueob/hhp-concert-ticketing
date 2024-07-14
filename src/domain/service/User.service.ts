@@ -20,6 +20,10 @@ export class UserService {
     return user;
   }
 
+  createWaitingQueue(uuid: string): Promise<User> {
+    return this.userRepositoryInterface.createWaitingQueue(uuid);
+  }
+
   usePoint(uuid: string, amount: number): Promise<void> {
     return this.userRepositoryInterface.usePoint(uuid, amount);
   }
