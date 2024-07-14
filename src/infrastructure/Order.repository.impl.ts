@@ -1,4 +1,4 @@
-import { OrderTicket } from "../domain/OrderTicket";
+import { OrderTicket } from "../domain/OrderTicket.domain";
 import { OrderRepositoryInterface } from "../domain/repository/Order.repository.interface";
 import { ReservationTicket } from "../domain/ReservationTicket.domain";
 

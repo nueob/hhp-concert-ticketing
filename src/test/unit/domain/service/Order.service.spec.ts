@@ -3,7 +3,7 @@ import { ReservationTicket } from "../../../../domain/ReservationTicket.domain";
 import { OrderService } from "../../../../domain/service/Order.service";
 import { OrderRepositoryInterface } from "../../../../domain/repository/Order.repository.interface";
 import { OrderErrorCodeEnum } from "../../../../enum/OrderErrorCode.enum";
-import { OrderTicket } from "../../../../domain/OrderTicket";
+import { OrderTicket } from "../../../../domain/OrderTicket.domain";
 
 describe("OrderService unit test", () => {
   let orderService: OrderService;

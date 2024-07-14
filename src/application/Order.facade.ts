@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { OrderService } from "../domain/service/Order.service";
 import { OrderErrorCodeEnum } from "../enum/OrderErrorCode.enum";
-import { OrderTicket } from "../domain/OrderTicket";
+import { OrderTicket } from "../domain/OrderTicket.domain";
 import { ConcertService } from "../domain/service/Concert.service";
 import { OrderStepEnum } from "../enum/OrderStep.enum";
 import { UserService } from "../domain/service/User.service";

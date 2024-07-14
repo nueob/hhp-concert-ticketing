@@ -1,7 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
 import { ApiOperation } from "@nestjs/swagger";
 import { ApiErrorResponse } from "../../decorator/ApiErrorResponse";
-import { OrderErrorCodeEnum } from "@root/enum/OrderErrorCode.enum";
+import { OrderErrorCodeEnum } from "../../enum/OrderErrorCode.enum";
 
 export function OrderDocs() {
   return applyDecorators(

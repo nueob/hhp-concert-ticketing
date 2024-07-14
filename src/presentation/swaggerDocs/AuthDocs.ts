@@ -1,7 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
 import { ApiOperation } from "@nestjs/swagger";
 import { ApiErrorResponse } from "../../decorator/ApiErrorResponse";
-import { UserErrorCodeEnum } from "@root/enum/UserErrorCode.enum";
+import { UserErrorCodeEnum } from "../../enum/UserErrorCode.enum";
 
 export function AuthDocs() {
   return applyDecorators(

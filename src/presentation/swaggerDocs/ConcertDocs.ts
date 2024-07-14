@@ -1,7 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
 import { ApiOperation } from "@nestjs/swagger";
 import { ApiErrorResponse } from "../../decorator/ApiErrorResponse";
-import { ConcertErrorCodeEnum } from "@root/enum/ConcertErrorCode.enum";
+import { ConcertErrorCodeEnum } from "../../enum/ConcertErrorCode.enum";
 
 export function FindAllDocs() {
   return applyDecorators(

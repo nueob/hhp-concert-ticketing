@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { OrderRepositoryInterface } from "../repository/Order.repository.interface";
 import { ReservationTicket } from "../ReservationTicket.domain";
 import { OrderErrorCodeEnum } from "../../enum/OrderErrorCode.enum";
-import { OrderTicket } from "../OrderTicket";
+import { OrderTicket } from "../OrderTicket.domain";
 
 @Injectable()
 export class OrderService {

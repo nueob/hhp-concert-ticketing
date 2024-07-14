@@ -1,4 +1,4 @@
-import { OrderTicket } from "../OrderTicket";
+import { OrderTicket } from "../OrderTicket.domain";
 import { ReservationTicket } from "../ReservationTicket.domain";
 
 export interface OrderRepositoryInterface {
