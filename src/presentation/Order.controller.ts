@@ -14,7 +14,10 @@ export class OrderController {
   @HttpCode(HttpStatus.OK)
   @OrderDocs()
   @OrderErrorResponse()
-  async pay(@Param("reservationTicketId") reservationTicketId: number) {
+  async pay(
+    @Param("reservationTicketId") reservationTicketId: number,
+    @ReqUser() user: User,
+  ) {
     this.orderFacade.pay(reservationTicketId);
   }
 }

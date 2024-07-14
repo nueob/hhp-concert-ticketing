@@ -11,7 +11,7 @@ describe("Performance domain unit", () => {
         1,
         1,
         1000,
-        new ReservationTicket(1, 1, 1, false, new Date()),
+        new ReservationTicket(1, "0001", 1, false, new Date()),
       );
       seat.isReserved = jest.fn().mockReturnValue(false);
 

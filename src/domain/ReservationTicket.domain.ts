@@ -1,13 +1,13 @@
 export class ReservationTicket {
   private readonly _id: number;
-  private readonly _userUuid: number;
+  private readonly _userUuid: string;
   private readonly _seatId: number;
   private readonly _isFinish: boolean;
   private readonly _createdAt: Date;
 
   constructor(
     id?: number,
-    userUuid?: number,
+    userUuid?: string,
     seatId?: number,
     isFinish?: boolean,
     createdAt?: Date,
@@ -31,7 +31,7 @@ export class ReservationTicket {
     return this._id;
   }
 
-  get userUuid(): number {
+  get userUuid(): string {
     return this._userUuid;
   }
 

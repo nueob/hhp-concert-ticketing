@@ -3,11 +3,15 @@ import { Concert } from "../domain/Concert.domain";
 import { ConcertService } from "../domain/service/Concert.service";
 import { ConcertErrorCodeEnum } from "../enum/ConcertErrorCode.enum";
 import { ReservationTicket } from "../domain/ReservationTicket.domain";
-import { Seat } from "@root/domain/Seat.domain";
+import { Seat } from "../domain/Seat.domain";
+import { UserService } from "../domain/service/User.service";
 
 @Injectable()
 export class ConcertFacade {
-  constructor(private readonly concertService: ConcertService) {}
+  constructor(
+    private readonly concertService: ConcertService,
+    private readonly userService: UserService,
+  ) {}
 
   getAllConcertList(): Promise<Concert[]> {
     return this.concertService.findAll();
@@ -35,6 +39,11 @@ export class ConcertFacade {
   async reservation(
     reservationTicket: ReservationTicket,
   ): Promise<ReservationTicket> {
+    const user = await this.userService.findByUuid(reservationTicket.userUuid);
+    if (!user.isActive()) {
+      throw new Error(ConcertErrorCodeEnum.예약할수_없는_상태.message);
+    }
+
     const performance = await this.concertService.findPerformanceBySeatId(
       reservationTicket.seatId,
     );

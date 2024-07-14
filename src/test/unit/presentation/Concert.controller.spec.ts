@@ -1,3 +1,5 @@
+import { Test, TestingModule } from "@nestjs/testing";
+import { ExecutionContext } from "@nestjs/common";
 import { ConcertController } from "../../../presentation/Concert.controller";
 import { ConcertFacade } from "../../../application/Concert.facade";
 import { FindReservationAvailableDateResponseDTO } from "../../../presentation/dto/res/FindReservationAvailableDate.res.dto";
@@ -7,31 +9,49 @@ import { FindAllConcertListResponseDTO } from "../../../presentation/dto/res/Fin
 import { ReservationTicket } from "../../../domain/ReservationTicket.domain";
 import { ReservationConcertRequestDTO } from "../../../presentation/dto/req/ReservationConcert.req.dto";
 import { ReservationConcertResponseDTO } from "../../../presentation/dto/res/ReservationConcert.res.dto";
-import { ConcertService } from "../../../domain/service/Concert.service";
+import { User } from "../../../domain/User.domain";
+import { AuthGuard } from "../../../../libs/guard/Auth.guard";
 
 describe("ConcertController Unit Test", () => {
   let concertController: ConcertController;
   let concertFacade: ConcertFacade;
-  let concertService: ConcertService;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     jest.useFakeTimers();
     jest.setSystemTime();
 
-    concertFacade = new ConcertFacade(concertService);
-    concertFacade.getAllConcertList = jest
-      .fn()
-      .mockResolvedValue(Promise.resolve([new Concert()]));
-    concertFacade.getAvailableDateList = jest
-      .fn()
-      .mockResolvedValue(Promise.resolve([new Concert()]));
-    concertFacade.getAvailableSeat = jest
-      .fn()
-      .mockResolvedValue(Promise.resolve([{}]));
-    concertFacade.reservation = jest
-      .fn()
-      .mockResolvedValue(new ReservationTicket(null, 1, 1, false, new Date()));
-    concertController = new ConcertController(concertFacade);
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ConcertController],
+      providers: [
+        {
+          provide: ConcertFacade,
+          useValue: {
+            getAllConcertList: jest
+              .fn()
+              .mockResolvedValue(Promise.resolve([new Concert()])),
+            getAvailableDateList: jest
+              .fn()
+              .mockResolvedValue(Promise.resolve([new Concert()])),
+            getAvailableSeat: jest
+              .fn()
+              .mockResolvedValue(Promise.resolve([{}])),
+            reservation: jest
+              .fn()
+              .mockResolvedValue(
+                new ReservationTicket(null, "0001", 1, false, new Date()),
+              ),
+          },
+        },
+      ],
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({
+        canActivate: jest.fn((context: ExecutionContext) => true),
+      })
+      .compile();
+
+    concertController = module.get<ConcertController>(ConcertController);
+    concertFacade = module.get<ConcertFacade>(ConcertFacade);
   });
 
   test("findAll: 전체 콘서트를 조회한다.", async () => {
@@ -77,14 +97,16 @@ describe("ConcertController Unit Test", () => {
   test("reservation: 좌석을 예약한다.", async () => {
     //given
     const seatId = 1;
+    const user = new User("0001");
     //when
     const response = await concertController.reservation(
       new ReservationConcertRequestDTO(seatId),
+      user,
     );
     //then
     expect(response).toStrictEqual(
       new ReservationConcertResponseDTO(
-        new ReservationTicket(null, 1, 1, false, new Date()),
+        new ReservationTicket(null, "0001", 1, false, new Date()),
       ),
     );
     expect(concertFacade.reservation).toHaveBeenCalled();

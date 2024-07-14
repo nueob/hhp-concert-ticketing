@@ -26,6 +26,8 @@ import {
   ReservationErrorResponse,
 } from "./swaggerDocs/ConcertDocs";
 import { UserAuth } from "../../libs/decorator/UserAuth";
+import { ReqUser } from "../../libs/decorator/ReqUser";
+import { User } from "../domain/User.domain";
 
 @ApiTags("콘서트 API")
 @Controller("/concerts")
@@ -91,10 +93,11 @@ export class ConcertController {
   @HttpCode(HttpStatus.OK)
   async reservation(
     @Body() reservationConcertRequestDTO: ReservationConcertRequestDTO,
+    @ReqUser() user: User,
   ): Promise<ReservationConcertResponseDTO> {
     return new ReservationConcertResponseDTO(
       await this.concertFacade.reservation(
-        reservationConcertRequestDTO.toDomain(1),
+        reservationConcertRequestDTO.toDomain(user.uuid),
       ),
     );
   }

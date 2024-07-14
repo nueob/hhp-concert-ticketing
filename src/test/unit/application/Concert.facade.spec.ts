@@ -6,10 +6,13 @@ import { ConcertService } from "../../../domain/service/Concert.service";
 import { ConcertErrorCodeEnum } from "../../../enum/ConcertErrorCode.enum";
 import { ConcertFacade } from "../../../application/Concert.facade";
 import { Seat } from "../../../domain/Seat.domain";
+import { User } from "../../../domain/User.domain";
+import { UserService } from "../../../domain/service/User.service";
 
 describe("ConcertFacade unit test", () => {
   let concertFacade: ConcertFacade;
   let concertService: ConcertService;
+  let userService: UserService;
 
   beforeAll(async () => {
     jest.useFakeTimers();
@@ -26,11 +29,18 @@ describe("ConcertFacade unit test", () => {
             findByPerformanceId: jest.fn(),
           },
         },
+        {
+          provide: UserService,
+          useValue: {
+            findByUuid: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     concertFacade = module.get<ConcertFacade>(ConcertFacade);
     concertService = module.get<ConcertService>(ConcertService);
+    userService = module.get<UserService>(UserService);
   });
 
   describe("getAllConcertList: 모든 콘서트 정보를 반환한다.", () => {
@@ -123,9 +133,12 @@ describe("ConcertFacade unit test", () => {
   describe("reservation: 콘서트를 예약한다.", () => {
     test("정상 요청", async () => {
       //given
+      const user = new User("0001");
+      user.isActive = jest.fn().mockReturnValue(true);
+
       const reservationTicket = new ReservationTicket(
         1,
-        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -139,6 +152,7 @@ describe("ConcertFacade unit test", () => {
         [new Seat(1, 1, 1, 1000)],
       );
 
+      userService.findByUuid = jest.fn().mockResolvedValue(user);
       concertService.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);
@@ -154,11 +168,35 @@ describe("ConcertFacade unit test", () => {
       //then
       expect(response).toStrictEqual(reservationTicket);
     });
-    test("예약 가능한 시간이 지났을 경우 에러를 던진다.", async () => {
-      // given
+    test("사용자의 대기열 상태가 활성화가 아닐 경우 에러를 던진다.", async () => {
+      //given
+      const user = new User("0001");
+      user.isActive = jest.fn().mockReturnValue(false);
+
       const reservationTicket = new ReservationTicket(
         1,
+        "0001",
         1,
+        false,
+        new Date(),
+      );
+      userService.findByUuid = jest.fn().mockResolvedValue(user);
+      //when
+      //then
+      await expect(
+        concertFacade.reservation(reservationTicket),
+      ).rejects.toThrow(
+        new Error(ConcertErrorCodeEnum.예약할수_없는_상태.message),
+      );
+    });
+    test("예약 가능한 시간이 지났을 경우 에러를 던진다.", async () => {
+      // given
+      const user = new User("0001");
+      user.isActive = jest.fn().mockReturnValue(true);
+
+      const reservationTicket = new ReservationTicket(
+        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -172,6 +210,7 @@ describe("ConcertFacade unit test", () => {
         [new Seat(1, 1, 1, 1000)],
       );
 
+      userService.findByUuid = jest.fn().mockResolvedValue(user);
       concertService.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);
@@ -189,9 +228,12 @@ describe("ConcertFacade unit test", () => {
     });
     test("신청 가능한 인원이 초과되었을 경우 에러를 던진다.", async () => {
       // given
+      const user = new User("0001");
+      user.isActive = jest.fn().mockReturnValue(true);
+
       const reservationTicket = new ReservationTicket(
         1,
-        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -205,6 +247,7 @@ describe("ConcertFacade unit test", () => {
         [new Seat(1, 1, 1, 1000)],
       );
 
+      userService.findByUuid = jest.fn().mockResolvedValue(user);
       concertService.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);

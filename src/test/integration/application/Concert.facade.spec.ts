@@ -7,10 +7,14 @@ import { ConcertErrorCodeEnum } from "../../../enum/ConcertErrorCode.enum";
 import { ConcertFacade } from "../../../application/Concert.facade";
 import { Seat } from "../../../domain/Seat.domain";
 import { ConcertRepositoryInterface } from "../../../domain/repository/Concert.repository.interface";
+import { UserService } from "../../../domain/service/User.service";
+import { UserRepositoryInterface } from "../../../domain/repository/User.repository.interface";
+import { User } from "../../../domain/User.domain";
 
 describe("ConcertFacade integration test", () => {
   let concertFacade: ConcertFacade;
   let concertRepositoryInterface: ConcertRepositoryInterface;
+  let userRepositoryInterface: UserRepositoryInterface;
 
   beforeAll(async () => {
     jest.useFakeTimers();
@@ -20,6 +24,7 @@ describe("ConcertFacade integration test", () => {
       providers: [
         ConcertFacade,
         ConcertService,
+        UserService,
         {
           provide: "ConcertRepositoryInterface",
           useValue: {
@@ -29,12 +34,21 @@ describe("ConcertFacade integration test", () => {
             saveReservationTicket: jest.fn(),
           },
         },
+        {
+          provide: "UserRepositoryInterface",
+          useValue: {
+            findByUuid: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     concertFacade = module.get<ConcertFacade>(ConcertFacade);
     concertRepositoryInterface = module.get<ConcertRepositoryInterface>(
       "ConcertRepositoryInterface",
+    );
+    userRepositoryInterface = module.get<UserRepositoryInterface>(
+      "UserRepositoryInterface",
     );
   });
 
@@ -162,9 +176,12 @@ describe("ConcertFacade integration test", () => {
   describe("reservation: 콘서트를 예약한다.", () => {
     test("정상 요청", async () => {
       //given
+      const user = new User();
+      user.isActive = jest.fn().mockReturnValue(true);
+
       const reservationTicket = new ReservationTicket(
         1,
-        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -178,6 +195,7 @@ describe("ConcertFacade integration test", () => {
         [new Seat(1, 1, 1, 1000)],
       );
 
+      userRepositoryInterface.findByUuid = jest.fn().mockResolvedValue(user);
       concertRepositoryInterface.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);
@@ -195,11 +213,36 @@ describe("ConcertFacade integration test", () => {
         concertRepositoryInterface.saveReservationTicket,
       ).toHaveBeenCalled();
     });
-    test("예약 가능한 시간이 지났을 경우 에러를 던진다.", async () => {
-      // given
+    test("사용자 대기열이 활성화가 아닐 경우 에러를 던진다.", async () => {
+      //given
+      const user = new User();
+      user.isActive = jest.fn().mockReturnValue(false);
+
       const reservationTicket = new ReservationTicket(
         1,
+        "0001",
         1,
+        false,
+        new Date(),
+      );
+
+      userRepositoryInterface.findByUuid = jest.fn().mockResolvedValue(user);
+      //when
+      //then
+      await expect(
+        concertFacade.reservation(reservationTicket),
+      ).rejects.toThrow(
+        new Error(ConcertErrorCodeEnum.예약할수_없는_상태.message),
+      );
+    });
+    test("예약 가능한 시간이 지났을 경우 에러를 던진다.", async () => {
+      // given
+      const user = new User();
+      user.isActive = jest.fn().mockReturnValue(true);
+
+      const reservationTicket = new ReservationTicket(
+        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -213,6 +256,7 @@ describe("ConcertFacade integration test", () => {
         [new Seat(1, 1, 1, 1000)],
       );
 
+      userRepositoryInterface.findByUuid = jest.fn().mockResolvedValue(user);
       concertRepositoryInterface.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);
@@ -226,9 +270,12 @@ describe("ConcertFacade integration test", () => {
     });
     test("신청 가능한 인원이 초과되었을 경우 에러를 던진다.", async () => {
       // given
+      const user = new User();
+      user.isActive = jest.fn().mockReturnValue(true);
+
       const reservationTicket = new ReservationTicket(
         1,
-        1,
+        "0001",
         1,
         false,
         new Date(),
@@ -245,11 +292,12 @@ describe("ConcertFacade integration test", () => {
             1,
             1,
             1000,
-            new ReservationTicket(1, 1, 1, true, new Date()),
+            new ReservationTicket(1, "0001", 1, true, new Date()),
           ),
         ],
       );
 
+      userRepositoryInterface.findByUuid = jest.fn().mockResolvedValue(user);
       concertRepositoryInterface.findPerformanceBySeatId = jest
         .fn()
         .mockResolvedValue(performance);
