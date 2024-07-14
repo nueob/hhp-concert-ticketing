@@ -25,7 +25,7 @@ import {
   ReservationDocs,
   ReservationErrorResponse,
 } from "./swaggerDocs/ConcertDocs";
-import { UserAuth } from "../decorator/UserAuth";
+import { UserAuth } from "../../libs/decorator/UserAuth";
 
 @ApiTags("콘서트 API")
 @Controller("/concerts")

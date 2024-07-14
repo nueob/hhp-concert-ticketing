@@ -1,6 +1,6 @@
 import { applyDecorators, HttpStatus } from "@nestjs/common";
 import { ApiResponse } from "@nestjs/swagger";
-import { ErrorCodeEnum } from "@root/enum/ErrorCode.enum";
+import { ErrorCodeEnum } from "../../src/enum/ErrorCode.enum";
 
 export function ApiErrorResponse(errorCodeList: ErrorCodeEnum[]) {
   return applyDecorators(
