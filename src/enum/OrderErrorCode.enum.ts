@@ -10,6 +10,10 @@ export class OrderErrorCodeEnum extends ErrorCodeEnum {
     "결제 가능한 시간이 지났습니다.",
     HttpStatus.BAD_REQUEST,
   );
+  static readonly 잔액_부족 = new OrderErrorCodeEnum(
+    "잔액이 부족합니다.",
+    HttpStatus.BAD_REQUEST,
+  );
 
   constructor(message: string, httpCode: HttpStatus) {
     super(message, httpCode);

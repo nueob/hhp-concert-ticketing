@@ -5,6 +5,7 @@ import { OrderTicket } from "../domain/OrderTicket.domain";
 import { ConcertService } from "../domain/service/Concert.service";
 import { OrderStepEnum } from "../enum/OrderStep.enum";
 import { UserService } from "../domain/service/User.service";
+import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 
 @Injectable()
 export class OrderFacade {
@@ -14,9 +15,11 @@ export class OrderFacade {
     private readonly userService: UserService,
   ) {}
 
-  async pay(reservationTicketId: number): Promise<void> {
-    const reservationTicket =
-      await this.orderService.findReservationById(reservationTicketId);
+  async pay(uuid: string, reservationTicketId: number): Promise<void> {
+    const [user, reservationTicket] = await Promise.all([
+      this.userService.findByUuid(uuid),
+      this.orderService.findReservationById(reservationTicketId),
+    ]);
     if (!reservationTicket.validTicket()) {
       throw new Error(OrderErrorCodeEnum.결제_가능한_시간_초과.message);
     }
@@ -28,6 +31,11 @@ export class OrderFacade {
     const seat = performance.seatList.find(
       ({ id }) => id === reservationTicket.seatId,
     );
+
+    if (seat.price > user.point) {
+      throw new Error(OrderErrorCodeEnum.잔액_부족.message);
+    }
+
     const orderTicket = new OrderTicket(
       null,
       reservationTicketId,
@@ -41,7 +49,12 @@ export class OrderFacade {
     await Promise.all([
       this.orderService.createOrderTicket(orderTicket),
       this.orderService.isFinishedReservation(reservationTicketId),
-      // this.userService.usePoint()
+      this.userService.usePoint(uuid, seat.price),
+      this.userService.insertPointHistory(
+        uuid,
+        seat.price,
+        PointTransactionTypeEnum.사용,
+      ),
     ]);
   }
 }
