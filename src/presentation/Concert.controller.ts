@@ -25,6 +25,7 @@ import {
   ReservationDocs,
   ReservationErrorResponse,
 } from "./swaggerDocs/ConcertDocs";
+import { UserAuth } from "../decorator/UserAuth";
 
 @ApiTags("콘서트 API")
 @Controller("/concerts")
@@ -82,6 +83,7 @@ export class ConcertController {
     );
   }
 
+  @UserAuth()
   @Post("/reservation")
   @ReservationDocs()
   @ReservationErrorResponse()

@@ -6,6 +6,9 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
   findByUuid(uuid: string): Promise<User> {
     return Promise.resolve(new User());
   }
+  createWaitingQueue(uuid: string) {
+    return Promise.resolve(new User());
+  }
   usePoint(uuid: string, amount: number): Promise<void> {
     return;
   }
