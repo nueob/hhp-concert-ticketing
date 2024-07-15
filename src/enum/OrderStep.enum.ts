@@ -11,4 +11,8 @@ export class OrderStepEnum {
   get code(): string {
     return this._code;
   }
+
+  static findByCode(code: string) {
+    return Object.values(OrderStepEnum).find((e) => e.code === code);
+  }
 }

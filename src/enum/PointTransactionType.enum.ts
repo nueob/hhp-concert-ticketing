@@ -16,4 +16,8 @@ export class PointTransactionTypeEnum {
   get value(): string {
     return this._value;
   }
+
+  static findByCode(code: string) {
+    return Object.values(PointTransactionTypeEnum).find((e) => e.code === code);
+  }
 }

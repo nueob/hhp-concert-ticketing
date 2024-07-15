@@ -12,4 +12,8 @@ export class WaitingQueueStatusEnum {
   get code(): string {
     return this._code;
   }
+
+  static findByCode(code: string) {
+    return Object.values(WaitingQueueStatusEnum).find((e) => e.code === code);
+  }
 }
