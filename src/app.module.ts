@@ -19,9 +19,21 @@ import { UserQueueScheduler } from "./presentation/UserQueue.scheduler";
 import { SchedulerFacade } from "./application/Scheduler.facade";
 import { QueueService } from "./domain/service/Queue.service";
 import { WaitingQueueRepositoryImpl } from "./infrastructure/WaitingQueue.repository.impl";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
+  imports: [
+    ScheduleModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: "mysql",
+      host: "localhost",
+      port: 3306,
+      username: "user",
+      password: "123",
+      database: "concert",
+      synchronize: true,
+    }),
+  ],
   controllers: [
     AuthController,
     UserController,
