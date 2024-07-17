@@ -36,6 +36,7 @@ export class OrderFacade {
       throw new Error(OrderErrorCodeEnum.잔액_부족.message);
     }
 
+    const amount = user.point - seat.price;
     const orderTicket = new OrderTicket(
       null,
       reservationTicketId,
@@ -49,7 +50,7 @@ export class OrderFacade {
     await Promise.all([
       this.orderService.createOrderTicket(orderTicket),
       this.orderService.isFinishedReservation(reservationTicketId),
-      this.userService.usePoint(uuid, seat.price),
+      this.userService.updatePoint(uuid, amount),
       this.userService.insertPointHistory(
         uuid,
         seat.price,

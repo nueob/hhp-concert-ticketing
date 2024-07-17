@@ -24,12 +24,8 @@ export class UserService {
     return this.userRepositoryInterface.createWaitingQueue(uuid);
   }
 
-  usePoint(uuid: string, amount: number): Promise<void> {
-    return this.userRepositoryInterface.usePoint(uuid, amount);
-  }
-
-  chargePoint(uuid: string, amount: number): Promise<void> {
-    return this.userRepositoryInterface.chargePoint(uuid, amount);
+  updatePoint(uuid: string, amount: number): Promise<void> {
+    return this.userRepositoryInterface.updatePoint(uuid, amount);
   }
 
   insertPointHistory(

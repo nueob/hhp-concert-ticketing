@@ -4,8 +4,7 @@ import { User } from "../User.domain";
 export interface UserRepositoryInterface {
   findByUuid(uuid: string): Promise<User>;
   createWaitingQueue(uuid: string): Promise<User>;
-  usePoint(uuid: string, amount: number): Promise<void>;
-  chargePoint(uuid: string, amount: number): Promise<void>;
+  updatePoint(uuid: string, amount: number): Promise<void>;
   insertPointHistory(
     uuid: string,
     amount: number,

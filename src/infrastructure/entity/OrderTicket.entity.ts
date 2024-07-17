@@ -7,7 +7,6 @@ import {
   JoinColumn,
 } from "typeorm";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
-import { TinyIntTransformer } from "../../../libs/transformer/TinyInt.transformer";
 import { OrderTicketStepTransformer } from "../../../libs/transformer/OrderTicketStep.transformer";
 import { OrderStepEnum } from "@root/enum/OrderStep.enum";
 
@@ -23,11 +22,6 @@ export class OrderTicketEntity {
     transformer: new OrderTicketStepTransformer(),
   })
   step: OrderStepEnum;
-
-  @Column("tinyint", {
-    transformer: new TinyIntTransformer(),
-  })
-  is_finish: boolean;
 
   @Column({ length: 45 })
   concert_name: string;

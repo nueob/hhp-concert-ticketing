@@ -29,7 +29,7 @@ describe("Auth facade integration", () => {
           useValue: {
             findByUuid: jest.fn(),
             createWaitingQueue: jest.fn(),
-            chargePoint: jest.fn(),
+            updatePoint: jest.fn(),
             insertPointHistory: jest.fn(),
           },
         },

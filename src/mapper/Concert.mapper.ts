@@ -1,0 +1,76 @@
+import { Concert } from "@root/domain/Concert.domain";
+import { Performance } from "@root/domain/Performance.domain";
+import { ReservationTicket } from "@root/domain/ReservationTicket.domain";
+import { Seat } from "@root/domain/Seat.domain";
+import { ConcertEntity } from "@root/infrastructure/entity/Concert.entity";
+import { PerformanceEntity } from "@root/infrastructure/entity/Performance.entity";
+import { ReservationTicketEntity } from "@root/infrastructure/entity/ReservationTicket.entity";
+import { SeatEntity } from "@root/infrastructure/entity/Seat.entity";
+
+export class ConcertMapper {
+  static mapToConcertDomain(entity: ConcertEntity): Concert {
+    if (!entity) return;
+
+    return new Concert(
+      entity.id,
+      entity.name,
+      entity.performanceList?.map((performane) =>
+        this.mapToPerformanceDomain(performane),
+      ),
+    );
+  }
+
+  static mapToPerformanceDomain(entity: PerformanceEntity): Performance {
+    if (!entity) return;
+
+    return new Performance(
+      entity.id,
+      entity.maximum_capacity,
+      entity.start_at,
+      entity.ticketing_start_at,
+      entity.ticketing_end_at,
+      entity.seatList?.map((seat) => this.mapToSeatDomain(seat)),
+    );
+  }
+
+  static mapToSeatDomain(entity: SeatEntity): Seat {
+    if (!entity) return;
+
+    return new Seat(
+      entity.id,
+      entity.performance_id,
+      entity.seat_no,
+      entity.price,
+      this.mapToReservationTicketDomain(entity.reservationTicket),
+    );
+  }
+
+  static mapToReservationTicketDomain(
+    entity: ReservationTicketEntity,
+  ): ReservationTicket {
+    if (!entity) return;
+
+    return new ReservationTicket(
+      entity.id,
+      entity.user_uuid,
+      entity.seat_id,
+      entity.is_finish,
+      entity.created_at,
+    );
+  }
+
+  static mapToReservationEntity(
+    domain: ReservationTicket,
+  ): ReservationTicketEntity {
+    if (!domain) return;
+
+    const reservationTicketEntity = new ReservationTicketEntity();
+    reservationTicketEntity.id = domain.id;
+    reservationTicketEntity.user_uuid = domain.userUuid;
+    reservationTicketEntity.seat_id = domain.seatId;
+    reservationTicketEntity.is_finish = domain.isFinish;
+    reservationTicketEntity.created_at = domain.createdAt;
+
+    return reservationTicketEntity;
+  }
+}

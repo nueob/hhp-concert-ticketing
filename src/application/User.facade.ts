@@ -23,7 +23,7 @@ export class UserFacade {
     const point = user.point + amount;
 
     await Promise.all([
-      this.userService.chargePoint(uuid, point),
+      this.userService.updatePoint(uuid, point),
       this.userService.insertPointHistory(
         uuid,
         point,

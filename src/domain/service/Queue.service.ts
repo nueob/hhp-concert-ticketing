@@ -15,7 +15,7 @@ export class QueueService {
     return this.waitingQueueRepositoryInterface.findAfterTime(fiveMinutesAgo);
   }
 
-  getTokenListToBeActivated(count): Promise<WaitingQueue[]> {
+  getTokenListToBeActivated(count: number): Promise<WaitingQueue[]> {
     return this.waitingQueueRepositoryInterface.findByLimitCount(count);
   }
 

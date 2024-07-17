@@ -17,7 +17,7 @@ describe("UserFacade unit test", () => {
           provide: "UserRepositoryInterface",
           useValue: {
             findByUuid: jest.fn(),
-            chargePoint: jest.fn(),
+            updatePoint: jest.fn(),
             insertPointHistory: jest.fn(),
           },
         },
@@ -59,7 +59,7 @@ describe("UserFacade unit test", () => {
       //when
       await userFacade.chargePointByUuid(uuid, amount);
       //then
-      expect(userRepositoryInterface.chargePoint).toHaveBeenCalled();
+      expect(userRepositoryInterface.updatePoint).toHaveBeenCalled();
       expect(userRepositoryInterface.insertPointHistory).toHaveBeenCalled();
     });
   });

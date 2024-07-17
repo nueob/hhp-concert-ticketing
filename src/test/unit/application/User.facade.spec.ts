@@ -15,7 +15,7 @@ describe("UserFacade unit test", () => {
           provide: UserService,
           useValue: {
             findByUuid: jest.fn(),
-            chargePoint: jest.fn(),
+            updatePoint: jest.fn(),
             insertPointHistory: jest.fn(),
           },
         },
@@ -90,7 +90,7 @@ describe("UserFacade unit test", () => {
       const response = await userFacade.chargePointByUuid(uuid, amount);
       //then
       expect(response).toEqual(point + amount);
-      expect(userService.chargePoint).toHaveBeenCalled();
+      expect(userService.updatePoint).toHaveBeenCalled();
       expect(userService.insertPointHistory).toHaveBeenCalled();
     });
   });

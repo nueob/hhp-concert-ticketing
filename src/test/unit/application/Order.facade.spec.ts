@@ -41,7 +41,7 @@ describe("OrderFacade unit test", () => {
           provide: UserService,
           useValue: {
             findByUuid: jest.fn(),
-            usePoint: jest.fn(),
+            updatePoint: jest.fn(),
             insertPointHistory: jest.fn(),
           },
         },
@@ -84,7 +84,7 @@ describe("OrderFacade unit test", () => {
       //then
       expect(orderService.createOrderTicket).toHaveBeenCalled();
       expect(orderService.isFinishedReservation).toHaveBeenCalled();
-      expect(userService.usePoint).toHaveBeenCalled();
+      expect(userService.updatePoint).toHaveBeenCalled();
       expect(userService.insertPointHistory).toHaveBeenCalled();
     });
     test("결제 가능한 시간이 초과 했을 경우 에러를 던진다", async () => {
