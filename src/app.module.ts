@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { APP_FILTER } from "@nestjs/core";
+import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { ScheduleModule } from "@nestjs/schedule";
 import { UserQueueScheduler } from "./presentation/UserQueue.scheduler";
@@ -19,8 +19,9 @@ import { UserEntity } from "./infrastructure/entity/User.entity";
 import { UserPointLogEntity } from "./infrastructure/entity/UserPointLog.entity";
 import { PerformanceEntity } from "./infrastructure/entity/Performance.entity";
 
-import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
-import { WinstonLogger } from "libs/config/WinstonLogger";
+import { GlobalExceptionFilter } from "../libs/filter/GlobalException.filter";
+import { WinstonLogger } from "../libs/config/WinstonLogger";
+import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor";
 
 @Module({
   imports: [
@@ -53,12 +54,16 @@ import { WinstonLogger } from "libs/config/WinstonLogger";
   providers: [
     UserQueueScheduler,
     {
+      provide: "LoggerService",
+      useValue: new WinstonLogger().logger,
+    },
+    {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
     },
     {
-      provide: "LoggerService",
-      useValue: new WinstonLogger().logger,
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
     },
   ],
 })
