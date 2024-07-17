@@ -10,6 +10,14 @@ import { EntityModule } from "./modules/Entity.module";
 import { OrderModule } from "./modules/Order.module";
 import { UserModule } from "./modules/User.module";
 import { UserQueueModule } from "./modules/UserQueue.module";
+import { UserQueueEntity } from "./infrastructure/entity/UserQueue.entity";
+import { ConcertEntity } from "./infrastructure/entity/Concert.entity";
+import { OrderTicketEntity } from "./infrastructure/entity/OrderTicket.entity";
+import { ReservationTicketEntity } from "./infrastructure/entity/ReservationTicket.entity";
+import { SeatEntity } from "./infrastructure/entity/Seat.entity";
+import { UserEntity } from "./infrastructure/entity/User.entity";
+import { UserPointLogEntity } from "./infrastructure/entity/UserPointLog.entity";
+import { PerformanceEntity } from "./infrastructure/entity/Performance.entity";
 
 import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
 
@@ -29,7 +37,16 @@ import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
       username: "user",
       password: "123",
       database: "concert",
-      synchronize: true,
+      entities: [
+        ConcertEntity,
+        OrderTicketEntity,
+        PerformanceEntity,
+        ReservationTicketEntity,
+        SeatEntity,
+        UserEntity,
+        UserPointLogEntity,
+        UserQueueEntity,
+      ],
     }),
   ],
   providers: [
