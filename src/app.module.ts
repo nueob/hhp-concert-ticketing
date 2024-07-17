@@ -20,6 +20,7 @@ import { UserPointLogEntity } from "./infrastructure/entity/UserPointLog.entity"
 import { PerformanceEntity } from "./infrastructure/entity/Performance.entity";
 
 import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
+import { WinstonLogger } from "libs/config/WinstonLogger";
 
 @Module({
   imports: [
@@ -54,6 +55,10 @@ import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: "LoggerService",
+      useValue: new WinstonLogger().logger,
     },
   ],
 })
