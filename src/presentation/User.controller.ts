@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Put,
 } from "@nestjs/common";
@@ -22,8 +23,11 @@ import {
 export class UserController {
   constructor(private readonly userFacade: UserFacade) {}
 
+  private readonly logger = new Logger(UserController.name);
+
   @Get()
   async checkUserActivation(@Param("uuid") uuid: string): Promise<boolean> {
+    this.logger.debug("유저 활성화 여부 조회 : " + JSON.stringify(uuid));
     const checkUserActivation = await this.userFacade.checkUserActivation(uuid);
 
     return checkUserActivation;
@@ -37,6 +41,8 @@ export class UserController {
   async findUserPoint(
     @Param("uuid") uuid: string,
   ): Promise<UserPointResponseDTO> {
+    this.logger.debug("포인트 조회 : " + JSON.stringify(uuid));
+
     return new UserPointResponseDTO(
       await this.userFacade.findPointByUuid(uuid),
     );
@@ -50,6 +56,10 @@ export class UserController {
     @Param("uuid") uuid: string,
     @Body() chargeUserPointRequestDTO: ChargeUserPointRequestDTO,
   ) {
+    this.logger.debug(
+      "포인트 사용 : " + JSON.stringify({ uuid, ...chargeUserPointRequestDTO }),
+    );
+
     return new UserPointResponseDTO(
       await this.userFacade.chargePointByUuid(
         uuid,
