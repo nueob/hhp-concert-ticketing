@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { APP_FILTER } from "@nestjs/core";
 
 import { ScheduleModule } from "@nestjs/schedule";
 import { UserQueueScheduler } from "./presentation/UserQueue.scheduler";
@@ -9,6 +10,8 @@ import { EntityModule } from "./modules/Entity.module";
 import { OrderModule } from "./modules/Order.module";
 import { UserModule } from "./modules/User.module";
 import { UserQueueModule } from "./modules/UserQueue.module";
+
+import { GlobalExceptionFilter } from "libs/filter/GlobalException.filter";
 
 @Module({
   imports: [
@@ -29,6 +32,12 @@ import { UserQueueModule } from "./modules/UserQueue.module";
       synchronize: true,
     }),
   ],
-  providers: [UserQueueScheduler],
+  providers: [
+    UserQueueScheduler,
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
