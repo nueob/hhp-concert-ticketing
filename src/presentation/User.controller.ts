@@ -10,7 +10,7 @@ import {
 import { UserPointResponseDTO } from "./dto/res/UserPoint.res.dto";
 import { UserFacade } from "../application/User.facade";
 import { ChargeUserPointRequestDTO } from "./dto/req/ChargeUserPoint.req.dto";
-import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import {
   ChargeUserPointDocs,
   ChargeUserPointErrorResponse,
@@ -21,6 +21,13 @@ import {
 @Controller("/users")
 export class UserController {
   constructor(private readonly userFacade: UserFacade) {}
+
+  @Get()
+  async checkUserActivation(@Param("uuid") uuid: string): Promise<boolean> {
+    const checkUserActivation = await this.userFacade.checkUserActivation(uuid);
+
+    return checkUserActivation;
+  }
 
   @Get("/:uuid/point")
   @FindUserPointDocs()

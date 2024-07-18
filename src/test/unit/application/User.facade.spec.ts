@@ -26,6 +26,39 @@ describe("UserFacade unit test", () => {
     userService = module.get<UserService>(UserService);
   });
 
+  describe("checkUserActivation: 활성화 유저인지 반환한다.", () => {
+    test("정상 요청, 활성화 유저일 경우 true를 반환한다.", async () => {
+      //given
+      const uuid = "00001";
+      const user = new User(uuid);
+      user.isActive = jest.fn().mockReturnValue(true);
+
+      jest
+        .spyOn(userService, "findByUuid")
+        .mockReturnValue(Promise.resolve(user));
+      //when
+      const response = await userFacade.checkUserActivation(uuid);
+      //then
+      expect(response).toBeTruthy();
+      expect(userService.findByUuid).toHaveBeenCalled();
+    });
+    test("정상 요청, 활성화 유저가 아닐 경우 false를 반환한다.", async () => {
+      //given
+      const uuid = "00001";
+      const user = new User(uuid);
+      user.isActive = jest.fn().mockReturnValue(false);
+
+      jest
+        .spyOn(userService, "findByUuid")
+        .mockReturnValue(Promise.resolve(user));
+      //when
+      const response = await userFacade.checkUserActivation(uuid);
+      //then
+      expect(response).toBeFalsy();
+      expect(userService.findByUuid).toHaveBeenCalled();
+    });
+  });
+
   describe("findPointByUuid: 포인트를 조회한다.", () => {
     test("정상 요청", async () => {
       //given

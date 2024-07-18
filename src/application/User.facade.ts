@@ -6,6 +6,12 @@ import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 export class UserFacade {
   constructor(private readonly userService: UserService) {}
 
+  async checkUserActivation(uuid: string): Promise<boolean> {
+    const user = await this.userService.findByUuid(uuid);
+
+    return user.isActive();
+  }
+
   async findPointByUuid(uuid: string): Promise<number> {
     const user = await this.userService.findByUuid(uuid);
 
