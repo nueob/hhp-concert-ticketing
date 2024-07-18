@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { AuthController } from "./presentation/Auth.controller";
 import { UserController } from "./presentation/User.controller";
 import { ConcertController } from "./presentation/Concert.controller";
@@ -16,9 +14,14 @@ import { JwtService } from "@nestjs/jwt";
 import { ConcertRepositoryImpl } from "./infrastructure/Concert.repository.impl";
 import { OrderRepositoryImpl } from "./infrastructure/Order.repository.impl";
 import { UserRepositoryImpl } from "./infrastructure/User.repository.impl";
+import { ScheduleModule } from "@nestjs/schedule";
+import { UserQueueScheduler } from "./presentation/UserQueue.scheduler";
+import { SchedulerFacade } from "./application/Scheduler.facade";
+import { QueueService } from "./domain/service/Queue.service";
+import { WaitingQueueRepositoryImpl } from "./infrastructure/WaitingQueue.repository.impl";
 
 @Module({
-  imports: [],
+  imports: [ScheduleModule.forRoot()],
   controllers: [
     AuthController,
     UserController,
@@ -27,14 +30,17 @@ import { UserRepositoryImpl } from "./infrastructure/User.repository.impl";
     UserController,
   ],
   providers: [
+    UserQueueScheduler,
     AuthFacade,
     ConcertFacade,
     OrderFacade,
     UserFacade,
+    SchedulerFacade,
     JwtService,
     ConcertService,
     OrderService,
     UserService,
+    QueueService,
     {
       provide: "ConcertRepositoryInterface",
       useValue: ConcertRepositoryImpl,
@@ -46,6 +52,10 @@ import { UserRepositoryImpl } from "./infrastructure/User.repository.impl";
     {
       provide: "UserRepositoryInterface",
       useValue: UserRepositoryImpl,
+    },
+    {
+      provide: "WaitingQueueRepositoryInterface",
+      useClass: WaitingQueueRepositoryImpl,
     },
   ],
 })
