@@ -1,4 +1,11 @@
-import { Controller, HttpCode, HttpStatus, Param, Put } from "@nestjs/common";
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Param,
+  Put,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { OrderDocs, OrderErrorResponse } from "./swaggerDocs/OrderDocs";
@@ -14,6 +21,8 @@ import { ReqUser } from "../../libs/decorator/ReqUser";
 export class OrderController {
   constructor(private readonly orderFacade: OrderFacade) {}
 
+  private readonly logger = new Logger(OrderController.name);
+
   @UserAuth()
   @Put("/:reservationTicketId")
   @HttpCode(HttpStatus.OK)
@@ -23,6 +32,10 @@ export class OrderController {
     @Param("reservationTicketId") reservationTicketId: number,
     @ReqUser() user: User,
   ) {
+    this.logger.debug(
+      "주문 결제 : " + JSON.stringify({ reservationTicketId, user }),
+    );
+
     this.orderFacade.pay(user.uuid, reservationTicketId);
   }
 }

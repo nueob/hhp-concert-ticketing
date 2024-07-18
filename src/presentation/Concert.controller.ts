@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Post,
 } from "@nestjs/common";
@@ -41,11 +42,15 @@ import { User } from "../domain/User.domain";
 export class ConcertController {
   constructor(private readonly concertFacade: ConcertFacade) {}
 
+  private readonly logger = new Logger(ConcertController.name);
+
   @Get()
   @FindAllDocs()
   @ApiOkResponse({ type: [FindAllConcertListResponseDTO] })
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<FindAllConcertListResponseDTO[]> {
+    this.logger.debug("전체 콘서트 조회");
+
     const concertList = await this.concertFacade.getAllConcertList();
 
     return concertList.map(
@@ -61,6 +66,8 @@ export class ConcertController {
   async findReservationAvailableDate(
     @Param("concertId") concertId: number,
   ): Promise<FindReservationAvailableDateResponseDTO> {
+    this.logger.debug("특정 콘서트 조회 : " + JSON.stringify(concertId));
+
     return new FindReservationAvailableDateResponseDTO(
       await this.concertFacade.getAvailableDateList(concertId),
     );
@@ -75,6 +82,11 @@ export class ConcertController {
     @Param("concertId") concertId: number,
     @Param("performanceId") performanceId: number,
   ): Promise<FindReservationAvailableSeatResponseDTO[]> {
+    this.logger.debug(
+      "특정 콘서트 예약 가능한 좌석 조회 : " +
+        JSON.stringify({ concertId, performanceId }),
+    );
+
     const seatList = await this.concertFacade.getAvailableSeat(
       concertId,
       performanceId,
@@ -95,6 +107,11 @@ export class ConcertController {
     @Body() reservationConcertRequestDTO: ReservationConcertRequestDTO,
     @ReqUser() user: User,
   ): Promise<ReservationConcertResponseDTO> {
+    this.logger.debug(
+      "콘서트 예약 : " +
+        JSON.stringify({ ...ReservationConcertRequestDTO, user }),
+    );
+
     return new ReservationConcertResponseDTO(
       await this.concertFacade.reservation(
         reservationConcertRequestDTO.toDomain(user.uuid),
