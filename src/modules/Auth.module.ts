@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { JwtModule } from "@nestjs/jwt";
 
 import { AuthController } from "../presentation/Auth.controller";
 import { AuthFacade } from "../application/Auth.facade";
@@ -8,17 +8,22 @@ import { UserRepositoryImpl } from "../infrastructure/User.repository.impl";
 import { EntityModule } from "./Entity.module";
 
 @Module({
-  imports: [EntityModule],
+  imports: [
+    EntityModule,
+    JwtModule.register({
+      secret: "belee",
+      signOptions: { expiresIn: "60m" },
+    }),
+  ],
   controllers: [AuthController],
   providers: [
     AuthFacade,
-    JwtService,
     UserService,
     {
       provide: "UserRepositoryInterface",
-      useValue: UserRepositoryImpl,
+      useClass: UserRepositoryImpl,
     },
   ],
-  exports: [JwtService, UserService],
+  exports: [JwtModule, UserService],
 })
 export class AuthModule {}
