@@ -3,7 +3,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { ScheduleModule } from "@nestjs/schedule";
-import { UserQueueScheduler } from "./presentation/UserQueue.scheduler";
 import { AuthModule } from "./modules/Auth.module";
 import { ConcertModule } from "./modules/Concert.module";
 import { EntityModule } from "./modules/Entity.module";
@@ -52,7 +51,6 @@ import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor"
     }),
   ],
   providers: [
-    UserQueueScheduler,
     {
       provide: "LoggerService",
       useValue: new WinstonLogger().logger,

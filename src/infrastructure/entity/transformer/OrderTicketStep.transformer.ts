@@ -1,6 +1,6 @@
 import { ValueTransformer } from "typeorm";
 
-import { OrderStepEnum } from "../../src/enum/OrderStep.enum";
+import { OrderStepEnum } from "../../../enum/OrderStep.enum";
 
 export class OrderTicketStepTransformer implements ValueTransformer {
   to(entityValue: OrderStepEnum): string {

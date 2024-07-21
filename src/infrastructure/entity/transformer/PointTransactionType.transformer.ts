@@ -1,6 +1,6 @@
 import { ValueTransformer } from "typeorm";
 
-import { PointTransactionTypeEnum } from "../../src/enum/PointTransactionType.enum";
+import { PointTransactionTypeEnum } from "../../../enum/PointTransactionType.enum";
 
 export class PointTransactionTypeTransformer implements ValueTransformer {
   to(entityValue: PointTransactionTypeEnum): string {

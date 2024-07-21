@@ -19,5 +19,6 @@ import { EntityModule } from "./Entity.module";
       useValue: UserRepositoryImpl,
     },
   ],
+  exports: [JwtService, UserService],
 })
 export class AuthModule {}

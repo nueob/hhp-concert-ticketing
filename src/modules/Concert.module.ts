@@ -7,9 +7,10 @@ import { ConcertFacade } from "@root/application/Concert.facade";
 import { ConcertService } from "@root/domain/service/Concert.service";
 import { ConcertRepositoryImpl } from "@root/infrastructure/Concert.repository.impl";
 import { EntityModule } from "./Entity.module";
+import { AuthModule } from "./Auth.module";
 
 @Module({
-  imports: [EntityModule],
+  imports: [EntityModule, AuthModule],
   controllers: [ConcertController],
   providers: [
     ConcertFacade,
