@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
 import { OrderTicketStepTransformer } from "./transformer/OrderTicketStep.transformer";
-import { OrderStepEnum } from "@root/enum/OrderStep.enum";
+import { OrderStepEnum } from "../../enum/OrderStep.enum";
 
 @Entity("order_ticket", { schema: "concert" })
 export class OrderTicketEntity {

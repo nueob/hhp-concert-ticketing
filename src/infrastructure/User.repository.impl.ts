@@ -10,7 +10,7 @@ import { User } from "../domain/User.domain";
 import { UserEntity } from "./entity/User.entity";
 import { UserPointLogEntity } from "./entity/UserPointLog.entity";
 
-import { UserMapper } from "@root/mapper/User.mapper";
+import { UserMapper } from "../mapper/User.mapper";
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepositoryInterface {

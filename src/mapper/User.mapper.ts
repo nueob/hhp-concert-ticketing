@@ -1,7 +1,7 @@
-import { User } from "@root/domain/User.domain";
-import { UserEntity } from "@root/infrastructure/entity/User.entity";
+import { User } from "../domain/User.domain";
+import { UserEntity } from "../infrastructure/entity/User.entity";
 import { WaitingQueueMapper } from "./WaitingQueue.mapper";
-import { WaitingQueueStatusEnum } from "@root/enum/WaitingQueueStatus.enum";
+import { WaitingQueueStatusEnum } from "../enum/WaitingQueueStatus.enum";
 
 export class UserMapper {
   static mapToUserDomain(entity: UserEntity): User {
