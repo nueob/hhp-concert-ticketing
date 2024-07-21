@@ -10,7 +10,7 @@ import {
 import { UserEntity } from "./User.entity";
 import { SeatEntity } from "./Seat.entity";
 import { OrderTicketEntity } from "./OrderTicket.entity";
-import { TinyIntTransformer } from "../../../libs/transformer/TinyInt.transformer";
+import { TinyIntTransformer } from "./transformer/TinyInt.transformer";
 
 @Entity("reservation_ticket", { schema: "concert" })
 export class ReservationTicketEntity {

@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { UserEntity } from "./User.entity";
 import { PointTransactionTypeEnum } from "../../enum/PointTransactionType.enum";
-import { PointTransactionTypeTransformer } from "libs/transformer/PointTransactionType.transformer";
+import { PointTransactionTypeTransformer } from "./transformer/PointTransactionType.transformer";
 
 @Entity("user_point_log", { schema: "concert" })
 export class UserPointLogEntity {

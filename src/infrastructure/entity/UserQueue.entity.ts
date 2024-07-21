@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { UserEntity } from "./User.entity";
 import { WaitingQueueStatusEnum } from "../../enum/WaitingQueueStatus.enum";
-import { WaitingQueueStatusTransformer } from "../../../libs/transformer/WaitingQueueStatus.transformer";
+import { WaitingQueueStatusTransformer } from "./transformer/WaitingQueueStatus.transformer";
 
 @Entity("user_queue", { schema: "concert" })
 export class UserQueueEntity {

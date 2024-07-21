@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
-import { OrderTicketStepTransformer } from "../../../libs/transformer/OrderTicketStep.transformer";
+import { OrderTicketStepTransformer } from "./transformer/OrderTicketStep.transformer";
 import { OrderStepEnum } from "@root/enum/OrderStep.enum";
 
 @Entity("order_ticket", { schema: "concert" })
