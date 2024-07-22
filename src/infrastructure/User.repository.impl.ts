@@ -21,7 +21,22 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     private readonly userPointLogRepository: Repository<UserPointLogEntity>,
   ) {}
 
-  async findByUuid(uuid: string): Promise<User> {
+  async findByUuid(
+    uuid: string,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<User> {
+    if (transactionalEntityManager) {
+      return UserMapper.mapToUserDomain(
+        await transactionalEntityManager.getRepository(UserEntity).findOne({
+          relations: { userQueueList: true },
+          where: {
+            uuid,
+          },
+          lock: { mode: "pessimistic_read" },
+        }),
+      );
+    }
+
     return UserMapper.mapToUserDomain(
       await this.userRepository.findOne({
         relations: { userQueueList: true },
@@ -44,11 +59,13 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     const user = new UserEntity();
     user.uuid = uuid;
     user.point = point;
+
     if (transactionalEntityManager) {
       return UserMapper.mapToUserDomain(
         await transactionalEntityManager.getRepository(UserEntity).save(user),
       );
     }
+
     return UserMapper.mapToUserDomain(await this.userRepository.save(user));
   }
 
@@ -70,12 +87,13 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     }
 
     if (transactionalEntityManager) {
-      await transactionalEntityManager
-        .getRepository(UserPointLogEntity)
-        .save(userPointLogEntity);
+      const userPointLog =
+        this.userPointLogRepository.create(userPointLogEntity);
 
+      await transactionalEntityManager.save(userPointLog);
       return;
     }
+
     await this.userPointLogRepository.save(
       this.userPointLogRepository.create(userPointLogEntity),
     );
