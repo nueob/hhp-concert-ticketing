@@ -100,16 +100,16 @@ describe("User Controller integration test", () => {
       ]);
     });
 
-    test("정상요청, 정상적으로 포인트가 충전된다.", async () => {
-      //given
-      const uuid = "0001";
-      const amount = 200;
-      const userBeforeUsePoint = await userController.findUserPoint(uuid);
-      //when
-      const response = await userController.chargeUserPoint(uuid, { amount });
-      //then
-      expect(response.point).toBe(userBeforeUsePoint.point + amount);
-    });
+    // test("정상요청, 정상적으로 포인트가 충전된다.", async () => {
+    //   //given
+    //   const uuid = "0001";
+    //   const amount = 200;
+    //   const userBeforeUsePoint = await userController.findUserPoint(uuid);
+    //   //when
+    //   const response = await userController.chargeUserPoint(uuid, { amount });
+    //   //then
+    //   expect(response.point).toBe(userBeforeUsePoint.point + amount);
+    // });
     // 락 적용 전
     // test("[락 적용 전] 동시성 테스트, 포인트 충전 여러 요청 시 모두 성공하고 한 요청 건에 대해서만 업데이트 된다.", async () => {
     //   //given
@@ -130,37 +130,33 @@ describe("User Controller integration test", () => {
     //     userBeforeUsePoint.point + amount,
     //   );
     // });
-    test("[비관적 읽기 잠금] 동시성 테스트, 포인트 충전 여러 요청 시 1개의 요청을 제외하고 실패한다.", async () => {
+    test("[비관적 읽기 잠금] 동시성 테스트, 포인트 충전 여러 요청 시 순차적으로 실행되어 모두 성공한다.", async () => {
       //given
       const uuid = "0001";
-      const amount = 200;
+      const wallet = {
+        amount1: 1000,
+        amount2: 2000,
+        amount3: 3000,
+        amount4: 4000,
+        amount5: 5000,
+      };
+      const userBeforeChargePoint = await userController.findUserPoint(uuid);
+      console.log(userBeforeChargePoint);
       //when
-      const requests = [
-        userController.chargeUserPoint(uuid, { amount }),
-        userController.chargeUserPoint(uuid, { amount: 3000 }),
-        userController.chargeUserPoint(uuid, { amount: 4000 }),
-        userController.chargeUserPoint(uuid, { amount: 5000 }),
-      ];
-      const results = await Promise.allSettled(requests);
+      await Promise.all([
+        userController.chargeUserPoint(uuid, { amount: wallet.amount1 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount2 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount3 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount4 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount5 }),
+      ]);
+      const userAfterChargePoint = await userController.findUserPoint(uuid);
 
       // then
-      let successfulRequests = 0;
-      let failedRequests = 0;
-
-      results.forEach((result) => {
-        if (result.status === "fulfilled") {
-          successfulRequests++;
-        } else if (result.status === "rejected") {
-          expect(result.reason.message).toContain(
-            "Deadlock found when trying to get lock; try restarting transaction",
-          );
-          failedRequests++;
-        }
-      });
-
-      // 최종 결과 확인
-      expect(successfulRequests).toBeGreaterThanOrEqual(1);
-      expect(failedRequests).toBeGreaterThanOrEqual(1);
+      expect(userAfterChargePoint.point).toBe(
+        userBeforeChargePoint.point +
+          Object.values(wallet).reduce((acc, amount) => (acc += amount), 0),
+      );
     });
   });
 });

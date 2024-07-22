@@ -7,7 +7,7 @@ import { User } from "../User.domain";
 export interface UserRepositoryInterface {
   findByUuid(
     uuid: string,
-    transactionalEntityManager: EntityManager,
+    transactionalEntityManager?: EntityManager,
   ): Promise<User>;
   createWaitingQueue(uuid: string): Promise<User>;
   updatePoint(

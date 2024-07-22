@@ -32,7 +32,7 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
           where: {
             uuid,
           },
-          lock: { mode: "pessimistic_read" },
+          lock: { mode: "pessimistic_write" },
         }),
       );
     }
