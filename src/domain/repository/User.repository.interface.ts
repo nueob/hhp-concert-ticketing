@@ -9,8 +9,9 @@ export interface UserRepositoryInterface {
   createWaitingQueue(uuid: string): Promise<User>;
   updatePoint(
     uuid: string,
-    amount: number,
-    transactionalEntityManager?: EntityManager,
+    point: number,
+    version: number,
+    transactionalEntityManager: EntityManager,
   ): Promise<User>;
   insertPointHistory(
     uuid: string,

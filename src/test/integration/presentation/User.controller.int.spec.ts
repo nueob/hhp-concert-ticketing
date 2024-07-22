@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 
@@ -15,30 +15,40 @@ import { SeatEntity } from "../../../infrastructure/entity/Seat.entity";
 import { PerformanceEntity } from "../../../infrastructure/entity/Performance.entity";
 import { ConcertEntity } from "../../../infrastructure/entity/Concert.entity";
 import { OrderTicketEntity } from "../../../infrastructure/entity/OrderTicket.entity";
+import { UserErrorCodeEnum } from "../../../enum/UserErrorCode.enum";
 
 describe("User Controller integration test", () => {
   let userController: UserController;
   let userRepository: Repository<UserEntity>;
   let userPointLogRepository: Repository<UserPointLogEntity>;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
+    dataSource = new DataSource({
+      type: "mysql",
+      host: "localhost",
+      port: 3306,
+      username: "user",
+      password: "123",
+      database: "concert",
+      synchronize: true,
+      dropSchema: true,
+      entities: [
+        UserEntity,
+        UserPointLogEntity,
+        UserQueueEntity,
+        ReservationTicketEntity,
+        SeatEntity,
+        PerformanceEntity,
+        ConcertEntity,
+        OrderTicketEntity,
+      ],
+    });
+    await dataSource.initialize();
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: "sqlite",
-          database: ":memory:",
-          synchronize: true,
-          entities: [
-            UserEntity,
-            UserPointLogEntity,
-            UserQueueEntity,
-            ReservationTicketEntity,
-            SeatEntity,
-            PerformanceEntity,
-            ConcertEntity,
-            OrderTicketEntity,
-          ],
-        }),
+        TypeOrmModule.forRoot(dataSource.options),
         TypeOrmModule.forFeature([
           UserEntity,
           UserPointLogEntity,
@@ -70,19 +80,27 @@ describe("User Controller integration test", () => {
     );
   });
 
-  beforeEach(async () => {
-    // user setting
-    const userEntity = new UserEntity();
-    userEntity.uuid = "0001";
-    userEntity.point = 1000;
-    userRepository.insert(userEntity);
-  });
-
-  afterEach(async () => {
-    await Promise.all([userRepository.clear(), userPointLogRepository.clear()]);
+  afterAll(async () => {
+    await dataSource.destroy();
   });
 
   describe("chargeUserPoint: 유저 포인트를 충전한다.", () => {
+    beforeEach(async () => {
+      // user setting
+      const userEntity = new UserEntity();
+      userEntity.uuid = "0001";
+      userEntity.point = 1000;
+      await userRepository.insert(userEntity);
+    });
+
+    afterEach(async () => {
+      await Promise.all([
+        userRepository.clear(),
+        userPointLogRepository.clear(),
+        // dataSource.destroy(),
+      ]);
+    });
+
     test("정상요청, 정상적으로 포인트가 충전된다.", async () => {
       //given
       const uuid = "0001";
@@ -92,6 +110,58 @@ describe("User Controller integration test", () => {
       const response = await userController.chargeUserPoint(uuid, { amount });
       //then
       expect(response.point).toBe(userBeforeUsePoint.point + amount);
+    });
+    // 락 적용 전
+    // test("[락 적용 전] 동시성 테스트, 포인트 충전 여러 요청 시 모두 성공하고 한 요청 건에 대해서만 업데이트 된다.", async () => {
+    //   //given
+    //   const uuid = "0001";
+    //   const amount = 200;
+    //   const userBeforeUsePoint = await userController.findUserPoint(uuid);
+    //   //when
+    //   await Promise.all([
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //   ]);
+
+    //   const userAfterChargePoint = await userController.findUserPoint(uuid);
+    //   //then
+    //   expect(userAfterChargePoint.point).toBe(
+    //     userBeforeUsePoint.point + amount,
+    //   );
+    // });
+    test("[낙관락] 동시성 테스트, 포인트 충전 여러 요청 시 1개의 요청을 제외하고 실패한다.", async () => {
+      //given
+      const uuid = "0001";
+      const amount = 200;
+      //when
+      const requests = [
+        userController.chargeUserPoint(uuid, { amount }),
+        userController.chargeUserPoint(uuid, { amount: 3000 }),
+        userController.chargeUserPoint(uuid, { amount: 4000 }),
+        userController.chargeUserPoint(uuid, { amount: 5000 }),
+      ];
+      const results = await Promise.allSettled(requests);
+
+      // then
+      let successfulRequests = 0;
+      let failedRequests = 0;
+
+      results.forEach((result) => {
+        if (result.status === "fulfilled") {
+          successfulRequests++;
+        } else if (result.status === "rejected") {
+          expect(result.reason.message).toContain(
+            UserErrorCodeEnum.동시성_이슈.message,
+          );
+          failedRequests++;
+        }
+      });
+
+      // 최종 결과 확인
+      expect(successfulRequests).toBe(1);
+      expect(failedRequests).toBe(3);
     });
   });
 });
