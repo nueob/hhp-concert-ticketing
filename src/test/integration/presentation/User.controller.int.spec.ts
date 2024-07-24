@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 
@@ -20,25 +20,34 @@ describe("User Controller integration test", () => {
   let userController: UserController;
   let userRepository: Repository<UserEntity>;
   let userPointLogRepository: Repository<UserPointLogEntity>;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
+    dataSource = new DataSource({
+      type: "mysql",
+      host: "localhost",
+      port: 3306,
+      username: "user",
+      password: "123",
+      database: "concert",
+      synchronize: true,
+      dropSchema: true,
+      entities: [
+        UserEntity,
+        UserPointLogEntity,
+        UserQueueEntity,
+        ReservationTicketEntity,
+        SeatEntity,
+        PerformanceEntity,
+        ConcertEntity,
+        OrderTicketEntity,
+      ],
+    });
+    await dataSource.initialize();
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: "sqlite",
-          database: ":memory:",
-          synchronize: true,
-          entities: [
-            UserEntity,
-            UserPointLogEntity,
-            UserQueueEntity,
-            ReservationTicketEntity,
-            SeatEntity,
-            PerformanceEntity,
-            ConcertEntity,
-            OrderTicketEntity,
-          ],
-        }),
+        TypeOrmModule.forRoot(dataSource.options),
         TypeOrmModule.forFeature([
           UserEntity,
           UserPointLogEntity,
@@ -70,28 +79,84 @@ describe("User Controller integration test", () => {
     );
   });
 
-  beforeEach(async () => {
-    // user setting
-    const userEntity = new UserEntity();
-    userEntity.uuid = "0001";
-    userEntity.point = 1000;
-    userRepository.insert(userEntity);
-  });
-
-  afterEach(async () => {
-    await Promise.all([userRepository.clear(), userPointLogRepository.clear()]);
+  afterAll(async () => {
+    await dataSource.destroy();
   });
 
   describe("chargeUserPoint: 유저 포인트를 충전한다.", () => {
-    test("정상요청, 정상적으로 포인트가 충전된다.", async () => {
+    beforeEach(async () => {
+      // user setting
+      const userEntity = new UserEntity();
+      userEntity.uuid = "0001";
+      userEntity.point = 1000;
+      userRepository.insert(userEntity);
+    });
+
+    afterEach(async () => {
+      await Promise.all([
+        userRepository.clear(),
+        userPointLogRepository.clear(),
+        // dataSource.destroy(),
+      ]);
+    });
+
+    // test("정상요청, 정상적으로 포인트가 충전된다.", async () => {
+    //   //given
+    //   const uuid = "0001";
+    //   const amount = 200;
+    //   const userBeforeUsePoint = await userController.findUserPoint(uuid);
+    //   //when
+    //   const response = await userController.chargeUserPoint(uuid, { amount });
+    //   //then
+    //   expect(response.point).toBe(userBeforeUsePoint.point + amount);
+    // });
+    // 락 적용 전
+    // test("[락 적용 전] 동시성 테스트, 포인트 충전 여러 요청 시 모두 성공하고 한 요청 건에 대해서만 업데이트 된다.", async () => {
+    //   //given
+    //   const uuid = "0001";
+    //   const amount = 200;
+    //   const userBeforeUsePoint = await userController.findUserPoint(uuid);
+    //   //when
+    //   await Promise.all([
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //     userController.chargeUserPoint(uuid, { amount }),
+    //   ]);
+
+    //   const userAfterChargePoint = await userController.findUserPoint(uuid);
+    //   //then
+    //   expect(userAfterChargePoint.point).toBe(
+    //     userBeforeUsePoint.point + amount,
+    //   );
+    // });
+    test("[비관적 읽기 잠금] 동시성 테스트, 포인트 충전 여러 요청 시 순차적으로 실행되어 모두 성공한다.", async () => {
       //given
       const uuid = "0001";
-      const amount = 200;
-      const userBeforeUsePoint = await userController.findUserPoint(uuid);
+      const wallet = {
+        amount1: 1000,
+        amount2: 2000,
+        amount3: 3000,
+        amount4: 4000,
+        amount5: 5000,
+      };
+      const userBeforeChargePoint = await userController.findUserPoint(uuid);
+      console.log(userBeforeChargePoint);
       //when
-      const response = await userController.chargeUserPoint(uuid, { amount });
-      //then
-      expect(response.point).toBe(userBeforeUsePoint.point + amount);
+      await Promise.all([
+        userController.chargeUserPoint(uuid, { amount: wallet.amount1 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount2 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount3 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount4 }),
+        userController.chargeUserPoint(uuid, { amount: wallet.amount5 }),
+      ]);
+      const userAfterChargePoint = await userController.findUserPoint(uuid);
+
+      // then
+      expect(userAfterChargePoint.point).toBe(
+        userBeforeChargePoint.point +
+          Object.values(wallet).reduce((acc, amount) => (acc += amount), 0),
+      );
     });
   });
 });
