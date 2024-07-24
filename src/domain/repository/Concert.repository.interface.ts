@@ -8,8 +8,14 @@ export interface ConcertRepositoryInterface {
   findAll(): Promise<Concert[]>;
   findById(concertId: number): Promise<Concert>;
   findBySeatId(seatId: number): Promise<Concert>;
-  findSeatById(seatId: number): Promise<Seat>;
-  updateSeat(seat: Seat): Promise<Seat>;
+  findSeatById(
+    seatId: number,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat>;
+  updateSeat(
+    seat: Seat,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat>;
   saveReservationTicket(
     reservationTicket: ReservationTicket,
     transactionalEntityManager?: EntityManager,

@@ -42,6 +42,7 @@ export class ConcertMapper {
       entity.seat_no,
       entity.price,
       entity.is_reserved,
+      this.mapToPerformanceDomain(entity.performance),
     );
   }
 

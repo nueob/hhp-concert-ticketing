@@ -14,8 +14,14 @@ export class UserService {
     private readonly userRepositoryInterface: UserRepositoryInterface,
   ) {}
 
-  async findByUuid(uuid: string): Promise<User | undefined> {
-    const user = await this.userRepositoryInterface.findByUuid(uuid);
+  async findByUuid(
+    uuid: string,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<User | undefined> {
+    const user = await this.userRepositoryInterface.findByUuid(
+      uuid,
+      transactionalEntityManager,
+    );
     if (!user) {
       throw new Error(UserErrorCodeEnum.존재하지_않는_유저.message);
     }
