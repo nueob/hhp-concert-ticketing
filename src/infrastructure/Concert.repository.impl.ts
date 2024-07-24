@@ -71,7 +71,6 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
       await this.seatRepository.findOne({
         relations: { performance: true },
         where: { id: seatId },
-        lock: { mode: "pessimistic_read" },
       }),
     );
   }

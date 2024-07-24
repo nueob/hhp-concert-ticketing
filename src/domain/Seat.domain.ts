@@ -6,6 +6,7 @@ export class Seat {
   private readonly _seatNo: number;
   private readonly _price: number;
   private _isReserved: boolean;
+  private readonly _version: number;
   private readonly _performance: Performance;
 
   constructor(
@@ -14,6 +15,7 @@ export class Seat {
     seatNo: number,
     price: number,
     isReserved: boolean,
+    version: number,
     performance?: Performance,
   ) {
     this._id = id;
@@ -21,6 +23,7 @@ export class Seat {
     this._seatNo = seatNo;
     this._price = price;
     this._isReserved = isReserved;
+    this._version = version;
     this._performance = performance;
   }
 
@@ -46,6 +49,10 @@ export class Seat {
 
   set isReserved(value) {
     this._isReserved = value;
+  }
+
+  get version(): number {
+    return this._version;
   }
 
   get performance(): Performance {
