@@ -1,16 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { Concert } from "../domain/Concert.domain";
-import { ConcertService } from "../domain/service/Concert.service";
+import { DataSource } from "typeorm";
+
 import { ConcertErrorCodeEnum } from "../enum/ConcertErrorCode.enum";
+import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
+
+import { ConcertService } from "../domain/service/Concert.service";
+import { UserService } from "../domain/service/User.service";
+
+import { Concert } from "../domain/Concert.domain";
 import { ReservationTicket } from "../domain/ReservationTicket.domain";
 import { Seat } from "../domain/Seat.domain";
-import { UserService } from "../domain/service/User.service";
 
 @Injectable()
 export class ConcertFacade {
   constructor(
     private readonly concertService: ConcertService,
     private readonly userService: UserService,
+    private readonly dataSource: DataSource,
   ) {}
 
   getAllConcertList(): Promise<Concert[]> {
@@ -39,22 +45,51 @@ export class ConcertFacade {
   async reservation(
     reservationTicket: ReservationTicket,
   ): Promise<ReservationTicket> {
-    const user = await this.userService.findByUuid(reservationTicket.userUuid);
-    if (!user.isActive()) {
-      throw new Error(ConcertErrorCodeEnum.예약할수_없는_상태.message);
-    }
-
-    const performance = await this.concertService.findPerformanceBySeatId(
-      reservationTicket.seatId,
-    );
-
-    if (!performance.isTicketAvailableDate()) {
+    const [seat, user] = await Promise.all([
+      this.concertService.findSeatById(reservationTicket.seatId),
+      this.userService.findByUuid(reservationTicket.userUuid),
+    ]);
+    // 공연 상태 확인
+    if (!seat.performance.isTicketAvailableDate()) {
       throw new Error(ConcertErrorCodeEnum.예약_가능한_시간이_지남.message);
     }
-    if (performance.getAvailableSeat().length === 0) {
-      throw new Error(ConcertErrorCodeEnum.신청_가능한_인원_초과.message);
+    // 사용자 잔액 확인
+    if (seat.price > user.point) {
+      throw new Error(ConcertErrorCodeEnum.잔액부족.message);
     }
 
-    return this.concertService.reservation(reservationTicket);
+    const amount = user.point - seat.price;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const manager = queryRunner.manager;
+
+    try {
+      const [ticket] = await Promise.all([
+        this.concertService.reservation(reservationTicket, manager),
+        this.concertService.activeSeat(seat),
+        this.userService.updatePoint(
+          reservationTicket.userUuid,
+          amount,
+          manager,
+        ),
+        this.userService.insertPointHistory(
+          reservationTicket.userUuid,
+          user.point,
+          PointTransactionTypeEnum.사용,
+          manager,
+        ),
+      ]);
+
+      return ticket;
+    } catch (error) {
+      console.error(error);
+      await queryRunner.rollbackTransaction();
+
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

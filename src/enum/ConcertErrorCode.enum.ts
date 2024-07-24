@@ -10,6 +10,10 @@ export class ConcertErrorCodeEnum extends ErrorCodeEnum {
     "존재하지 않는 콘서트 정보 입니다.",
     HttpStatus.BAD_REQUEST,
   );
+  static readonly 존재하지_않는_좌석_정보 = new ConcertErrorCodeEnum(
+    "존재하지 않는 좌석 입니다.",
+    HttpStatus.BAD_REQUEST,
+  );
   static readonly 예약_가능한_시간이_지남 = new ConcertErrorCodeEnum(
     "예약 가능한 시간이 지났습니다.",
     HttpStatus.BAD_REQUEST,
@@ -20,6 +24,10 @@ export class ConcertErrorCodeEnum extends ErrorCodeEnum {
   );
   static readonly 예약할수_없는_상태 = new ConcertErrorCodeEnum(
     "예약할 수 없는 상태입니다.",
+    HttpStatus.BAD_REQUEST,
+  );
+  static readonly 잔액부족 = new ConcertErrorCodeEnum(
+    "잔액이 부족합니다.",
     HttpStatus.BAD_REQUEST,
   );
 

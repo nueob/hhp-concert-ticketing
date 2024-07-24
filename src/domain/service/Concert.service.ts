@@ -1,9 +1,13 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { EntityManager } from "typeorm";
+
 import { ConcertErrorCodeEnum } from "../../enum/ConcertErrorCode.enum";
-import { Concert } from "../Concert.domain";
-import { Performance } from "../Performance.domain";
+
 import { ConcertRepositoryInterface } from "../repository/Concert.repository.interface";
+
+import { Concert } from "../Concert.domain";
 import { ReservationTicket } from "../ReservationTicket.domain";
+import { Seat } from "../Seat.domain";
 
 @Injectable()
 export class ConcertService {
@@ -34,21 +38,28 @@ export class ConcertService {
     return concert;
   }
 
-  async findPerformanceBySeatId(seatId: number): Promise<Performance> {
-    const performance =
-      await this.concertRepositoryInterface.findPerformanceBySeatId(seatId);
-    if (!performance) {
-      throw new Error(ConcertErrorCodeEnum.존재하지_않는_콘서트.message);
+  async findSeatById(seatId: number): Promise<Seat> {
+    const seat = await this.concertRepositoryInterface.findSeatById(seatId);
+    if (!seat) {
+      throw new Error(ConcertErrorCodeEnum.존재하지_않는_좌석_정보.message);
     }
 
-    return performance;
+    return seat;
+  }
+
+  activeSeat(seat: Seat): Promise<Seat> {
+    seat.isReserved = true;
+
+    return this.concertRepositoryInterface.updateSeat(seat);
   }
 
   reservation(
     reservationTicket: ReservationTicket,
+    transactionalEntityManager?: EntityManager,
   ): Promise<ReservationTicket> {
     return this.concertRepositoryInterface.saveReservationTicket(
       reservationTicket,
+      transactionalEntityManager,
     );
   }
 }

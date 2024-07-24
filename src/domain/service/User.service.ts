@@ -1,8 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { EntityManager } from "typeorm";
+
 import { PointTransactionTypeEnum } from "../../enum/PointTransactionType.enum";
+import { UserErrorCodeEnum } from "../../enum/UserErrorCode.enum";
+
 import { User } from "../User.domain";
 import { UserRepositoryInterface } from "../repository/User.repository.interface";
-import { UserErrorCodeEnum } from "../../enum/UserErrorCode.enum";
 
 @Injectable()
 export class UserService {
@@ -24,19 +27,29 @@ export class UserService {
     return this.userRepositoryInterface.createWaitingQueue(uuid);
   }
 
-  updatePoint(uuid: string, amount: number): Promise<void> {
-    return this.userRepositoryInterface.updatePoint(uuid, amount);
+  updatePoint(
+    uuid: string,
+    amount: number,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<User> {
+    return this.userRepositoryInterface.updatePoint(
+      uuid,
+      amount,
+      transactionalEntityManager,
+    );
   }
 
   insertPointHistory(
     uuid: string,
     amount: number,
     transactionType: PointTransactionTypeEnum,
+    transactionalEntityManager?: EntityManager,
   ): Promise<void> {
     return this.userRepositoryInterface.insertPointHistory(
       uuid,
       amount,
       transactionType,
+      transactionalEntityManager,
     );
   }
 }

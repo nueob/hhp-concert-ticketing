@@ -23,6 +23,9 @@ export class SeatEntity {
   @Column()
   price: number;
 
+  @Column()
+  is_reserved: boolean;
+
   @OneToOne(() => ReservationTicketEntity, (m) => m.seat, {
     createForeignKeyConstraints: false,
   })

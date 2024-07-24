@@ -41,7 +41,7 @@ export class ConcertMapper {
       entity.performance_id,
       entity.seat_no,
       entity.price,
-      this.mapToReservationTicketDomain(entity.reservationTicket),
+      entity.is_reserved,
     );
   }
 
@@ -57,6 +57,17 @@ export class ConcertMapper {
       entity.is_finish,
       entity.created_at,
     );
+  }
+
+  static mapToSeatEntity(domain: Seat): SeatEntity {
+    const seatEntity = new SeatEntity();
+    seatEntity.id = domain.id;
+    seatEntity.performance_id = domain.performanceId;
+    seatEntity.seat_no = domain.seatNo;
+    seatEntity.price = domain.price;
+    seatEntity.is_reserved = domain.isReserved;
+
+    return seatEntity;
   }
 
   static mapToReservationEntity(

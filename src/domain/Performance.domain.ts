@@ -25,7 +25,7 @@ export class Performance {
   }
 
   public getAvailableSeat(): Seat[] {
-    return this._seatList.filter((seat) => !seat.isReserved());
+    return this._seatList.filter((seat) => !seat.isReserved);
   }
 
   public isTicketAvailableDate(): boolean {

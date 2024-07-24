@@ -1,13 +1,16 @@
-import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
-import { UserRepositoryInterface } from "../domain/repository/User.repository.interface";
-import { User } from "../domain/User.domain";
+import { EntityManager, Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+
+import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
+
+import { UserRepositoryInterface } from "../domain/repository/User.repository.interface";
+import { User } from "../domain/User.domain";
+
 import { UserEntity } from "./entity/User.entity";
-import { Or, Repository } from "typeorm";
 import { UserPointLogEntity } from "./entity/UserPointLog.entity";
+
 import { UserMapper } from "@root/mapper/User.mapper";
-import { WaitingQueueStatusEnum } from "@root/enum/WaitingQueueStatus.enum";
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepositoryInterface {
@@ -33,29 +36,41 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     return Promise.resolve(new User());
   }
 
-  async updatePoint(uuid: string, point: number): Promise<void> {
-    const userEntity = new UserEntity();
-    userEntity.point = point;
-
-    await this.userRepository.update(uuid, userEntity);
-
-    return;
+  async updatePoint(
+    uuid: string,
+    point: number,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<User> {
+    const user = new UserEntity();
+    user.uuid = uuid;
+    user.point = point;
+    if (transactionalEntityManager) {
+      return UserMapper.mapToUserDomain(
+        await transactionalEntityManager.getRepository(UserEntity).save(user),
+      );
+    }
+    return UserMapper.mapToUserDomain(await this.userRepository.save(user));
   }
 
   async insertPointHistory(
     uuid: string,
     amount: number,
     transactionType: PointTransactionTypeEnum,
+    transactionalEntityManager?: EntityManager,
   ): Promise<void> {
     const userPointLogEntity = new UserPointLogEntity();
     userPointLogEntity.user_uuid = uuid;
     userPointLogEntity.amount = amount;
     userPointLogEntity.transactionType = transactionType;
+    if (transactionalEntityManager) {
+      const userPointLog =
+        this.userPointLogRepository.create(userPointLogEntity);
+      await transactionalEntityManager.save(userPointLog);
+      return;
+    }
 
     await this.userPointLogRepository.save(
       this.userPointLogRepository.create(userPointLogEntity),
     );
-
-    return;
   }
 }
