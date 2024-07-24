@@ -66,6 +66,12 @@ export class ConcertFacade {
     const manager = queryRunner.manager;
 
     try {
+      const activedSeat = await this.concertService.activeSeat(seat);
+      // seat insert 때 version 1 -> seat 상태 값 바꾸면서 version 2
+      if (activedSeat.version > 2) {
+        throw new Error(ConcertErrorCodeEnum.이미_예약된_좌석.message);
+      }
+
       const [ticket] = await Promise.all([
         this.concertService.reservation(reservationTicket, manager),
         this.concertService.activeSeat(seat),

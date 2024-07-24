@@ -5,6 +5,7 @@ import {
   OneToOne,
   ManyToOne,
   JoinColumn,
+  VersionColumn,
 } from "typeorm";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
 import { PerformanceEntity } from "./Performance.entity";
@@ -25,6 +26,9 @@ export class SeatEntity {
 
   @Column()
   is_reserved: boolean;
+
+  @VersionColumn()
+  version: number;
 
   @OneToOne(() => ReservationTicketEntity, (m) => m.seat, {
     createForeignKeyConstraints: false,

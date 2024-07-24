@@ -42,6 +42,8 @@ export class ConcertMapper {
       entity.seat_no,
       entity.price,
       entity.is_reserved,
+      entity.version,
+      this.mapToPerformanceDomain(entity.performance),
     );
   }
 
@@ -54,6 +56,7 @@ export class ConcertMapper {
       entity.id,
       entity.user_uuid,
       entity.seat_id,
+      entity.version,
       entity.is_finish,
       entity.created_at,
     );
@@ -66,6 +69,7 @@ export class ConcertMapper {
     seatEntity.seat_no = domain.seatNo;
     seatEntity.price = domain.price;
     seatEntity.is_reserved = domain.isReserved;
+    seatEntity.version = domain.version;
 
     return seatEntity;
   }

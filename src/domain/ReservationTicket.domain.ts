@@ -2,6 +2,7 @@ export class ReservationTicket {
   private readonly _id: number;
   private readonly _userUuid: string;
   private readonly _seatId: number;
+  private readonly _version: number;
   private readonly _isFinish: boolean;
   private readonly _createdAt: Date;
 
@@ -9,12 +10,14 @@ export class ReservationTicket {
     id?: number,
     userUuid?: string,
     seatId?: number,
+    version?: number,
     isFinish?: boolean,
     createdAt?: Date,
   ) {
     this._id = id;
     this._userUuid = userUuid;
     this._seatId = seatId;
+    this._version = version;
     this._isFinish = isFinish;
     this._createdAt = createdAt;
   }
@@ -37,6 +40,10 @@ export class ReservationTicket {
 
   get seatId(): number {
     return this._seatId;
+  }
+
+  get version(): number {
+    return this._version;
   }
 
   get isFinish(): boolean {

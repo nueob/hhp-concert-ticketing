@@ -19,6 +19,7 @@ export class ReservationConcertRequestDTO {
       null,
       userUuid,
       this.seatId,
+      0,
       false,
       new Date(),
     );
