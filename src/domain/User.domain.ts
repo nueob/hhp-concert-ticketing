@@ -4,11 +4,18 @@ import { WaitingQueue } from "./WaitingQueue.domain";
 export class User {
   private readonly _uuid: string;
   private readonly _point: number;
+  private readonly _version: number;
   private readonly _waitingQueue: WaitingQueue;
 
-  constructor(uuid?: string, point?: number, waitingQueue?: WaitingQueue) {
+  constructor(
+    uuid?: string,
+    point?: number,
+    version?: number,
+    waitingQueue?: WaitingQueue,
+  ) {
     this._uuid = uuid;
     this._point = point;
+    this._version = version;
     this._waitingQueue = waitingQueue;
   }
 
@@ -22,6 +29,10 @@ export class User {
 
   get uuid(): string {
     return this._uuid;
+  }
+
+  get version(): number {
+    return this._version;
   }
 
   get point(): number {
