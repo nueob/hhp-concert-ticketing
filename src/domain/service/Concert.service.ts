@@ -38,8 +38,14 @@ export class ConcertService {
     return concert;
   }
 
-  async findSeatById(seatId: number): Promise<Seat> {
-    const seat = await this.concertRepositoryInterface.findSeatById(seatId);
+  async findSeatById(
+    seatId: number,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat> {
+    const seat = await this.concertRepositoryInterface.findSeatById(
+      seatId,
+      transactionalEntityManager,
+    );
     if (!seat) {
       throw new Error(ConcertErrorCodeEnum.존재하지_않는_좌석_정보.message);
     }
@@ -47,10 +53,16 @@ export class ConcertService {
     return seat;
   }
 
-  activeSeat(seat: Seat): Promise<Seat> {
+  activeSeat(
+    seat: Seat,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat> {
     seat.isReserved = true;
 
-    return this.concertRepositoryInterface.updateSeat(seat);
+    return this.concertRepositoryInterface.updateSeat(
+      seat,
+      transactionalEntityManager,
+    );
   }
 
   reservation(

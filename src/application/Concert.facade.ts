@@ -45,30 +45,30 @@ export class ConcertFacade {
   async reservation(
     reservationTicket: ReservationTicket,
   ): Promise<ReservationTicket> {
-    const [seat, user] = await Promise.all([
-      this.concertService.findSeatById(reservationTicket.seatId),
-      this.userService.findByUuid(reservationTicket.userUuid),
-    ]);
-    // 공연 상태 확인
-    if (!seat.performance.isTicketAvailableDate()) {
-      throw new Error(ConcertErrorCodeEnum.예약_가능한_시간이_지남.message);
-    }
-    // 사용자 잔액 확인
-    if (seat.price > user.point) {
-      throw new Error(ConcertErrorCodeEnum.잔액부족.message);
-    }
-
-    const amount = user.point - seat.price;
-
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     const manager = queryRunner.manager;
 
     try {
+      const [seat, user] = await Promise.all([
+        this.concertService.findSeatById(reservationTicket.seatId, manager),
+        this.userService.findByUuid(reservationTicket.userUuid, manager),
+      ]);
+      // 공연 상태 확인
+      if (!seat.performance.isTicketAvailableDate()) {
+        throw new Error(ConcertErrorCodeEnum.예약_가능한_시간이_지남.message);
+      }
+      // 사용자 잔액 확인
+      if (seat.price > user.point) {
+        throw new Error(ConcertErrorCodeEnum.잔액부족.message);
+      }
+
+      const amount = user.point - seat.price;
+
       const [ticket] = await Promise.all([
         this.concertService.reservation(reservationTicket, manager),
-        this.concertService.activeSeat(seat),
+        this.concertService.activeSeat(seat, manager),
         this.userService.updatePoint(
           reservationTicket.userUuid,
           amount,
@@ -81,6 +81,8 @@ export class ConcertFacade {
           manager,
         ),
       ]);
+
+      await queryRunner.commitTransaction();
 
       return ticket;
     } catch (error) {
