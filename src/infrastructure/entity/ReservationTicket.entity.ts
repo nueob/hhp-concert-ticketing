@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToOne,
+  VersionColumn,
 } from "typeorm";
 import { UserEntity } from "./User.entity";
 import { SeatEntity } from "./Seat.entity";
@@ -30,6 +31,9 @@ export class ReservationTicketEntity {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @VersionColumn()
+  version: number;
 
   @ManyToOne(() => UserEntity, (m) => m.reservationTicketList, {
     createForeignKeyConstraints: false,

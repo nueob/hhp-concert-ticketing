@@ -28,6 +28,10 @@ export class Performance {
     return this._seatList.filter((seat) => !seat.isReserved);
   }
 
+  public getSeatInfo(seatId: number): Seat {
+    return this.seatList.find(({ id }) => id === seatId);
+  }
+
   public isTicketAvailableDate(): boolean {
     const currentDate = new Date();
 

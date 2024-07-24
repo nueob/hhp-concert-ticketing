@@ -69,6 +69,13 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
       return;
     }
 
+    if (transactionalEntityManager) {
+      await transactionalEntityManager
+        .getRepository(UserPointLogEntity)
+        .save(userPointLogEntity);
+
+      return;
+    }
     await this.userPointLogRepository.save(
       this.userPointLogRepository.create(userPointLogEntity),
     );

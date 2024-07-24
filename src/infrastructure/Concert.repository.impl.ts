@@ -60,7 +60,7 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
   async findPerformanceBySeatId(performanceId: number): Promise<Performance> {
     return ConcertMapper.mapToPerformanceDomain(
       await this.performanceRepository.findOne({
-        relations: { seatList: true },
+        relations: { seatList: { reservationTicket: true } },
         where: { id: performanceId },
       }),
     );
@@ -100,6 +100,7 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
           .save(reservationTicketEntity),
       );
     }
+
     return ConcertMapper.mapToReservationTicketDomain(
       await this.reservationTicketRepository.save(reservationTicketEntity),
     );

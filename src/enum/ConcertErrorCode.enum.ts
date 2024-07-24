@@ -22,6 +22,10 @@ export class ConcertErrorCodeEnum extends ErrorCodeEnum {
     "신청 가능한 인원이 초과되었습니다.",
     HttpStatus.BAD_REQUEST,
   );
+  static readonly 이미_예약된_좌석 = new ConcertErrorCodeEnum(
+    "이미 예약된 좌석입니다.",
+    HttpStatus.BAD_REQUEST,
+  );
   static readonly 예약할수_없는_상태 = new ConcertErrorCodeEnum(
     "예약할 수 없는 상태입니다.",
     HttpStatus.BAD_REQUEST,

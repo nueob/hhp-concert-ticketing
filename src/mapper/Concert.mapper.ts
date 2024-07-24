@@ -1,11 +1,11 @@
-import { Concert } from "@root/domain/Concert.domain";
-import { Performance } from "@root/domain/Performance.domain";
-import { ReservationTicket } from "@root/domain/ReservationTicket.domain";
-import { Seat } from "@root/domain/Seat.domain";
-import { ConcertEntity } from "@root/infrastructure/entity/Concert.entity";
-import { PerformanceEntity } from "@root/infrastructure/entity/Performance.entity";
-import { ReservationTicketEntity } from "@root/infrastructure/entity/ReservationTicket.entity";
-import { SeatEntity } from "@root/infrastructure/entity/Seat.entity";
+import { Concert } from "../domain/Concert.domain";
+import { Performance } from "../domain/Performance.domain";
+import { ReservationTicket } from "../domain/ReservationTicket.domain";
+import { Seat } from "../domain/Seat.domain";
+import { ConcertEntity } from "../infrastructure/entity/Concert.entity";
+import { PerformanceEntity } from "../infrastructure/entity/Performance.entity";
+import { ReservationTicketEntity } from "../infrastructure/entity/ReservationTicket.entity";
+import { SeatEntity } from "../infrastructure/entity/Seat.entity";
 
 export class ConcertMapper {
   static mapToConcertDomain(entity: ConcertEntity): Concert {
