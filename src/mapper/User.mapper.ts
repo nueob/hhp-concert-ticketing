@@ -10,6 +10,7 @@ export class UserMapper {
     return new User(
       entity.uuid,
       entity.point,
+      entity.version,
       WaitingQueueMapper.mapToWaitingQueueDomain(
         entity.userQueueList?.find(
           ({ status }) => status !== WaitingQueueStatusEnum.만료,

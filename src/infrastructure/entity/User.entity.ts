@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  VersionColumn,
+} from "typeorm";
 import { UserQueueEntity } from "./UserQueue.entity";
 import { UserPointLogEntity } from "./UserPointLog.entity";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
@@ -10,6 +16,9 @@ export class UserEntity {
 
   @Column()
   point: number;
+
+  @VersionColumn()
+  version: number;
 
   @OneToMany(() => UserQueueEntity, (m) => m.user, {
     createForeignKeyConstraints: false,
