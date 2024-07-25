@@ -75,7 +75,7 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
         await transactionalEntityManager.getRepository(SeatEntity).findOne({
           relations: { performance: true },
           where: { id: seatId },
-          lock: { mode: "pessimistic_read" },
+          lock: { mode: "pessimistic_write" },
         }),
       );
     }

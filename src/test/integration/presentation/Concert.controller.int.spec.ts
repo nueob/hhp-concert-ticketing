@@ -187,7 +187,7 @@ describe("Concert Controller integration test", () => {
   describe("reservation: 콘서트 좌석을 예약한다.", () => {
     test("정상요청, 콘서트가 예약된다.", async () => {
       //given
-      const seatId = 2;
+      const seatId = 1;
       const userEntity = await userRepository.findOne({
         where: { uuid: "0001" },
       });
@@ -203,7 +203,7 @@ describe("Concert Controller integration test", () => {
       //then
       expect(response.reservationTicketId).toBe(reservationTicket.id);
     });
-    test("비관적 읽기 잠금, 여러명이 동시 요청 했을 때 1명의 요청만 성공한다.", async () => {
+    test("비관적 쓰기 잠금, 여러명이 동시 요청 했을 때 모두 성공한다.", async () => {
       //given
       // user setting
       const userEntitis = await userRepository.find({
@@ -252,14 +252,11 @@ describe("Concert Controller integration test", () => {
         if (result.status === "fulfilled") {
           successfulRequests++;
         } else if (result.status === "rejected") {
-          expect(result.reason.message).toContain(
-            "Deadlock found when trying to get lock; try restarting transaction",
-          );
           failedReqeust++;
         }
       });
-      expect(successfulRequests).toBe(1);
-      expect(failedReqeust).toBe(3);
+      expect(successfulRequests).toBe(4);
+      expect(failedReqeust).toBe(0);
     });
   });
 });
