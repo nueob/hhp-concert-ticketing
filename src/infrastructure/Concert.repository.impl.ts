@@ -66,17 +66,44 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
     );
   }
 
-  async findSeatById(seatId: number): Promise<Seat> {
+  async findSeatById(
+    seatId: number,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat> {
+    if (transactionalEntityManager) {
+      return ConcertMapper.mapToSeatDomain(
+        await transactionalEntityManager.getRepository(SeatEntity).findOne({
+          relations: { performance: true },
+          where: { id: seatId },
+          lock: { mode: "pessimistic_write" },
+        }),
+      );
+    }
+
     return ConcertMapper.mapToSeatDomain(
       await this.seatRepository.findOne({
         relations: { performance: true },
         where: { id: seatId },
-        lock: { mode: "pessimistic_read" },
       }),
     );
   }
 
-  async updateSeat(seat: Seat): Promise<Seat> {
+  async updateSeat(
+    seat: Seat,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<Seat> {
+    if (transactionalEntityManager) {
+      const seatEntity = transactionalEntityManager
+        .getRepository(SeatEntity)
+        .create(ConcertMapper.mapToSeatEntity(seat));
+
+      return ConcertMapper.mapToSeatDomain(
+        await transactionalEntityManager
+          .getRepository(SeatEntity)
+          .save(seatEntity),
+      );
+    }
+
     const seatEntity = this.seatRepository.create(
       ConcertMapper.mapToSeatEntity(seat),
     );
@@ -88,7 +115,7 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
 
   async saveReservationTicket(
     reservationTicket: ReservationTicket,
-    transactionalEntityManager: EntityManager,
+    transactionalEntityManager?: EntityManager,
   ): Promise<ReservationTicket> {
     const reservationTicketEntity = this.reservationTicketRepository.create(
       ConcertMapper.mapToReservationEntity(reservationTicket),

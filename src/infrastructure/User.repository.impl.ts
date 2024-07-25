@@ -21,7 +21,21 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     private readonly userPointLogRepository: Repository<UserPointLogEntity>,
   ) {}
 
-  async findByUuid(uuid: string): Promise<User> {
+  async findByUuid(
+    uuid: string,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<User> {
+    if (transactionalEntityManager) {
+      return UserMapper.mapToUserDomain(
+        await transactionalEntityManager.getRepository(UserEntity).findOne({
+          relations: { userQueueList: true },
+          where: {
+            uuid,
+          },
+        }),
+      );
+    }
+
     return UserMapper.mapToUserDomain(
       await this.userRepository.findOne({
         relations: { userQueueList: true },

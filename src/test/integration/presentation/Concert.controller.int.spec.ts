@@ -1,6 +1,8 @@
 import { DataSource, Repository } from "typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
+import { JwtService } from "@nestjs/jwt";
+import { INestApplication } from "@nestjs/common";
 
 import { UserAuth } from "../../../../libs/decorator/UserAuth";
 
@@ -25,9 +27,9 @@ import { PerformanceEntity } from "../../../infrastructure/entity/Performance.en
 import { ConcertEntity } from "../../../infrastructure/entity/Concert.entity";
 import { OrderTicketEntity } from "../../../infrastructure/entity/OrderTicket.entity";
 import { AuthFacade } from "../../../application/Auth.facade";
-import { JwtService } from "@nestjs/jwt";
 
 describe("Concert Controller integration test", () => {
+  let app: INestApplication;
   let concertController: ConcertController;
   let userRepository: Repository<UserEntity>;
   let concertRepository: Repository<ConcertEntity>;
@@ -56,6 +58,7 @@ describe("Concert Controller integration test", () => {
         ConcertEntity,
         OrderTicketEntity,
       ],
+      logging: true,
     });
     await dataSource.initialize();
 
@@ -103,6 +106,9 @@ describe("Concert Controller integration test", () => {
       })
       .compile();
 
+    app = module.createNestApplication();
+    await app.init();
+
     concertController = module.get<ConcertController>(ConcertController);
     userRepository = module.get<Repository<UserEntity>>(
       getRepositoryToken(UserEntity),
@@ -123,13 +129,23 @@ describe("Concert Controller integration test", () => {
 
   afterAll(async () => {
     await dataSource.destroy();
+    await app.close();
   });
 
   beforeEach(async () => {
     // user setting
-    const user = new UserEntity();
-    user.uuid = "0001";
-    user.point = 100000;
+    const user1 = new UserEntity();
+    user1.uuid = "0001";
+    user1.point = 100000;
+    const user2 = new UserEntity();
+    user2.uuid = "0002";
+    user2.point = 200000;
+    const user3 = new UserEntity();
+    user3.uuid = "0003";
+    user3.point = 300000;
+    const user4 = new UserEntity();
+    user4.uuid = "0004";
+    user4.point = 400000;
     // concert setting
     const concert = new ConcertEntity();
     concert.id = 1;
@@ -147,10 +163,11 @@ describe("Concert Controller integration test", () => {
     seat.id = 1;
     seat.performance_id = 1;
     seat.seat_no = 1;
+    seat.is_reserved = false;
     seat.price = 1000;
 
     await Promise.all([
-      userRepository.insert(user),
+      userRepository.insert([user1, user2, user3, user4]),
       concertRepository.insert(concert),
       performanceRepository.insert(performance),
       seatRepository.insert(seat),
@@ -163,6 +180,7 @@ describe("Concert Controller integration test", () => {
       concertRepository.clear(),
       performanceRepository.clear(),
       seatRepository.clear(),
+      reservationTicketRepository.clear(),
     ]);
   });
 
@@ -184,6 +202,61 @@ describe("Concert Controller integration test", () => {
       });
       //then
       expect(response.reservationTicketId).toBe(reservationTicket.id);
+    });
+    test("비관적 쓰기 잠금, 여러명이 동시 요청 했을 때 모두 성공한다.", async () => {
+      //given
+      // user setting
+      const userEntitis = await userRepository.find({
+        where: [
+          { uuid: "0001" },
+          { uuid: "0002" },
+          { uuid: "0003" },
+          { uuid: "0004" },
+        ],
+      });
+
+      const seatId = 1;
+      //when
+      const requests = [
+        concertController.reservation(
+          new ReservationConcertRequestDTO(seatId),
+          UserMapper.mapToUserDomain(
+            userEntitis.find((user) => user.uuid === "0001"),
+          ),
+        ),
+        concertController.reservation(
+          new ReservationConcertRequestDTO(seatId),
+          UserMapper.mapToUserDomain(
+            userEntitis.find((user) => user.uuid === "0002"),
+          ),
+        ),
+        concertController.reservation(
+          new ReservationConcertRequestDTO(seatId),
+          UserMapper.mapToUserDomain(
+            userEntitis.find((user) => user.uuid === "0003"),
+          ),
+        ),
+        concertController.reservation(
+          new ReservationConcertRequestDTO(seatId),
+          UserMapper.mapToUserDomain(
+            userEntitis.find((user) => user.uuid === "0004"),
+          ),
+        ),
+      ];
+      const results = await Promise.allSettled(requests);
+      //then
+      let successfulRequests = 0;
+      let failedReqeust = 0;
+
+      results.forEach((result) => {
+        if (result.status === "fulfilled") {
+          successfulRequests++;
+        } else if (result.status === "rejected") {
+          failedReqeust++;
+        }
+      });
+      expect(successfulRequests).toBe(4);
+      expect(failedReqeust).toBe(0);
     });
   });
 });
