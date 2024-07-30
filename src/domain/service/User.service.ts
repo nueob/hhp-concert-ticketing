@@ -36,7 +36,7 @@ export class UserService {
   updatePoint(
     uuid: string,
     amount: number,
-    version: number,
+    version?: number,
     transactionalEntityManager?: EntityManager,
   ): Promise<User> {
     return this.userRepositoryInterface.updatePoint(
