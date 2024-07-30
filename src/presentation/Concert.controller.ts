@@ -29,6 +29,7 @@ import {
 import { UserAuth } from "../../libs/decorator/UserAuth";
 import { ReqUser } from "../../libs/decorator/ReqUser";
 import { User } from "../domain/User.domain";
+import { HttpCache } from "../../libs/decorator/HttpCache";
 
 @ApiTags("콘서트 API")
 @Controller("/concerts")
@@ -48,6 +49,7 @@ export class ConcertController {
   @FindAllDocs()
   @ApiOkResponse({ type: [FindAllConcertListResponseDTO] })
   @HttpCode(HttpStatus.OK)
+  @HttpCache("concert-find-all")
   async findAll(): Promise<FindAllConcertListResponseDTO[]> {
     this.logger.debug("전체 콘서트 조회");
 
@@ -63,6 +65,7 @@ export class ConcertController {
   @FindReservationAvailableDateErrorReponse()
   @ApiOkResponse({ type: FindReservationAvailableDateResponseDTO })
   @HttpCode(HttpStatus.OK)
+  @HttpCache("concert-find-reservation-available-date")
   async findReservationAvailableDate(
     @Param("concertId") concertId: number,
   ): Promise<FindReservationAvailableDateResponseDTO> {

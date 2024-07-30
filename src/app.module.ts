@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
+import { CacheModule } from "@nestjs/cache-manager";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { redisStore } from "cache-manager-redis-store";
 
 import { ScheduleModule } from "@nestjs/schedule";
 import { AuthModule } from "./modules/Auth.module";
@@ -21,6 +24,7 @@ import { PerformanceEntity } from "./infrastructure/entity/Performance.entity";
 import { GlobalExceptionFilter } from "../libs/filter/GlobalException.filter";
 import { WinstonLogger } from "../libs/config/WinstonLogger";
 import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor";
+import { HttpCacheInterceptor } from "libs/interceptor/HttpCache.interceptor";
 
 @Module({
   imports: [
@@ -49,6 +53,21 @@ import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor"
         UserQueueEntity,
       ],
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      envFilePath: ".env",
+    }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore as any,
+        host: configService.get<string>("REDIS_HOST", "localhost"),
+        port: configService.get<number>("REDIS_PORT", 6379),
+        ttl: configService.get<number>("CACHE_TTL", 300),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   providers: [
     {
@@ -62,6 +81,10 @@ import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor"
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpCacheInterceptor,
     },
   ],
 })

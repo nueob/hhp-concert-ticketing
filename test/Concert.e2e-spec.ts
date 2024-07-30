@@ -3,6 +3,10 @@ import { INestApplication } from "@nestjs/common";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { CacheModule } from "@nestjs/cache-manager";
+import { redisStore } from "cache-manager-redis-store";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
 import * as request from "supertest";
 
@@ -23,6 +27,8 @@ import { UserService } from "../src/domain/service/User.service";
 import { ConcertRepositoryImpl } from "../src/infrastructure/Concert.repository.impl";
 import { UserRepositoryImpl } from "../src/infrastructure/User.repository.impl";
 import { UserAuth } from "../libs/decorator/UserAuth";
+
+import { HttpCacheInterceptor } from "../libs/interceptor/HttpCache.interceptor";
 
 describe("SpecialLectureController (e2e)", () => {
   let app: INestApplication;
@@ -69,6 +75,21 @@ describe("SpecialLectureController (e2e)", () => {
           ConcertEntity,
           OrderTicketEntity,
         ]),
+        ConfigModule.forRoot({
+          isGlobal: true,
+          cache: true,
+          envFilePath: ".env",
+        }),
+        CacheModule.registerAsync({
+          imports: [ConfigModule],
+          useFactory: async (configService: ConfigService) => ({
+            store: redisStore as any,
+            host: configService.get<string>("REDIS_HOST", "localhost"),
+            port: configService.get<number>("REDIS_PORT", 6379),
+            ttl: configService.get<number>("CACHE_TTL", 300),
+          }),
+          inject: [ConfigService],
+        }),
       ],
       controllers: [ConcertController],
       providers: [
@@ -89,6 +110,10 @@ describe("SpecialLectureController (e2e)", () => {
         {
           provide: "UserRepositoryInterface",
           useClass: UserRepositoryImpl,
+        },
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: HttpCacheInterceptor,
         },
       ],
     })

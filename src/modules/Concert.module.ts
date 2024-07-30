@@ -8,9 +8,10 @@ import { ConcertService } from "@root/domain/service/Concert.service";
 import { ConcertRepositoryImpl } from "@root/infrastructure/Concert.repository.impl";
 import { EntityModule } from "./Entity.module";
 import { AuthModule } from "./Auth.module";
+import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
-  imports: [EntityModule, AuthModule],
+  imports: [CacheModule, EntityModule, AuthModule],
   controllers: [ConcertController],
   providers: [
     ConcertFacade,
