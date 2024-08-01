@@ -6,6 +6,7 @@ import { In, LessThan, Repository } from "typeorm";
 import { WaitingQueue } from "@root/domain/WaitingQueue.domain";
 import { WaitingQueueMapper } from "@root/mapper/WaitingQueue.mapper";
 import { WaitingQueueStatusEnum } from "@root/enum/WaitingQueueStatus.enum";
+import { RedisClient } from "./redis/Redis.client";
 
 @Injectable()
 export class WaitingQueueRepositoryImpl
@@ -14,7 +15,12 @@ export class WaitingQueueRepositoryImpl
   constructor(
     @InjectRepository(UserQueueEntity)
     private readonly userQueueRepository: Repository<UserQueueEntity>,
+    private readonly redisClient: RedisClient,
   ) {}
+
+  findByToken(token: string): Promise<string> {
+    return this.redisClient.get(token);
+  }
 
   async findAfterTime(time: Date): Promise<WaitingQueue[]> {
     const tokenList = await this.userQueueRepository.find({

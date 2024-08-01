@@ -9,6 +9,9 @@ export class QueueService {
     private readonly waitingQueueRepositoryInterface: WaitingQueueRepositoryInterface,
   ) {}
 
+  findActiveUserByToken(token: string): Promise<string> {
+    return this.waitingQueueRepositoryInterface.findByToken(`ACTIVE:${token}`);
+  }
   getTokensAfter5Minutes(): Promise<WaitingQueue[]> {
     const fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
 
