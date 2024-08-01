@@ -18,6 +18,7 @@ import { SeatEntity } from "../src/infrastructure/entity/Seat.entity";
 import { UserEntity } from "../src/infrastructure/entity/User.entity";
 import { UserPointLogEntity } from "../src/infrastructure/entity/UserPointLog.entity";
 import { UserQueueEntity } from "../src/infrastructure/entity/UserQueue.entity";
+import { RedisClient } from "../src/infrastructure/redis/Redis.client";
 
 import { ConcertController } from "../src/presentation/Concert.controller";
 import { ConcertFacade } from "../src/application/Concert.facade";
@@ -93,6 +94,7 @@ describe("SpecialLectureController (e2e)", () => {
       ],
       controllers: [ConcertController],
       providers: [
+        RedisClient,
         ConcertFacade,
         AuthFacade,
         ConcertService,

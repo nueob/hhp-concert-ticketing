@@ -16,8 +16,12 @@ import { PerformanceEntity } from "./entity/Performance.entity";
 import { ReservationTicketEntity } from "./entity/ReservationTicket.entity";
 import { SeatEntity } from "./entity/Seat.entity";
 
+import { RedisClient } from "./redis/Redis.client";
+
 @Injectable()
 export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
+  private readonly cacheTTL = 60 * 60;
+
   constructor(
     @InjectRepository(ConcertEntity)
     private readonly concertRepository: Repository<ConcertEntity>,
@@ -27,25 +31,45 @@ export class ConcertRepositoryImpl implements ConcertRepositoryInterface {
     private readonly reservationTicketRepository: Repository<ReservationTicketEntity>,
     @InjectRepository(SeatEntity)
     private readonly seatRepository: Repository<SeatEntity>,
+    private readonly redisClient: RedisClient,
   ) {}
 
   async findAll(): Promise<Concert[]> {
+    const key = "concert:all";
+    const cachedAllConcert = await this.redisClient.get(key);
+    if (cachedAllConcert) {
+      return cachedAllConcert;
+    }
+
     const concertList = await this.concertRepository.find({
       relations: { performanceList: true },
     });
-
-    return concertList.map((concert) =>
+    const results = concertList?.map((concert) =>
       ConcertMapper.mapToConcertDomain(concert),
     );
+
+    await this.redisClient.set(key, results, this.cacheTTL);
+
+    return results;
   }
 
   async findById(concertId: number): Promise<Concert> {
-    return ConcertMapper.mapToConcertDomain(
+    const key = `concert:${concertId}`;
+    const cachedConcert = await this.redisClient.get(key);
+    if (cachedConcert) {
+      return cachedConcert;
+    }
+
+    const results = ConcertMapper.mapToConcertDomain(
       await this.concertRepository.findOne({
         relations: { performanceList: { seatList: true } },
         where: { id: concertId },
       }),
     );
+
+    await this.redisClient.set(key, results, this.cacheTTL);
+
+    return results;
   }
 
   async findBySeatId(seatId: number): Promise<Concert> {
