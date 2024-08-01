@@ -9,8 +9,20 @@ export class QueueService {
     private readonly waitingQueueRepositoryInterface: WaitingQueueRepositoryInterface,
   ) {}
 
+  findActiveUsers(): Promise<string[]> {
+    return this.waitingQueueRepositoryInterface.findByPattern("ACTIVE:*");
+  }
+
   findActiveUserByToken(token: string): Promise<string> {
     return this.waitingQueueRepositoryInterface.findByToken(`ACTIVE:${token}`);
+  }
+
+  findWaitingRankList(count: number): Promise<string[]> {
+    return this.waitingQueueRepositoryInterface.findRankList(
+      "WAITING",
+      0,
+      count,
+    );
   }
 
   findWaitingRankByToken(token: string): Promise<number> {
@@ -26,6 +38,14 @@ export class QueueService {
       token,
       Date.now(),
     );
+  }
+
+  setActiveUser(uuid: string): Promise<void> {
+    const key = `ACTIVE:${uuid}`;
+    const value = uuid;
+    const ttl = 300;
+
+    return this.waitingQueueRepositoryInterface.setToken(key, value, ttl);
   }
 
   getTokensAfter5Minutes(): Promise<WaitingQueue[]> {

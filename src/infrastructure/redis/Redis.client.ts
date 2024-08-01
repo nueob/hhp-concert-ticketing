@@ -28,11 +28,23 @@ export class RedisClient {
     await this.redis.del(key);
   }
 
+  async keys(pattern: string): Promise<string[]> {
+    return this.redis.keys(pattern);
+  }
+
   async zadd(key: string, score: number, member: string): Promise<number> {
     return this.redis.zadd(key, score, member);
   }
 
   async zrank(key: string, member: string): Promise<number | null> {
     return this.redis.zrank(key, member);
+  }
+
+  async zrange(
+    key: string,
+    startIndex: number,
+    endIndex: number,
+  ): Promise<string[]> {
+    return this.redis.zrange(key, startIndex, endIndex);
   }
 }
