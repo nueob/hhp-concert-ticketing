@@ -22,6 +22,14 @@ export class WaitingQueueRepositoryImpl
     return this.redisClient.get(token);
   }
 
+  findRankByToken(key: string, token: string): Promise<number> {
+    return this.redisClient.zrank(key, token);
+  }
+
+  setRankByToken(key: string, token: string, score: number): Promise<number> {
+    return this.redisClient.zadd(key, score, token);
+  }
+
   async findAfterTime(time: Date): Promise<WaitingQueue[]> {
     const tokenList = await this.userQueueRepository.find({
       where: {

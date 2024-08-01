@@ -26,11 +26,9 @@ export class UserController {
   private readonly logger = new Logger(UserController.name);
 
   @Get()
-  async checkUserActivation(@Param("uuid") uuid: string): Promise<boolean> {
-    this.logger.debug("유저 활성화 여부 조회 : " + JSON.stringify(uuid));
-    const checkUserActivation = await this.userFacade.checkUserActivation(uuid);
-
-    return checkUserActivation;
+  async findRank(@Param("uuid") uuid: string): Promise<number> {
+    this.logger.debug("유저 대기열 순번 조회 : " + JSON.stringify(uuid));
+    return this.userFacade.findRank(uuid);
   }
 
   @Get("/:uuid/point")

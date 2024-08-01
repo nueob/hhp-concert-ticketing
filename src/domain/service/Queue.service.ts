@@ -12,6 +12,22 @@ export class QueueService {
   findActiveUserByToken(token: string): Promise<string> {
     return this.waitingQueueRepositoryInterface.findByToken(`ACTIVE:${token}`);
   }
+
+  findWaitingRankByToken(token: string): Promise<number> {
+    return this.waitingQueueRepositoryInterface.findRankByToken(
+      "WAITING",
+      token,
+    );
+  }
+
+  setWaitingRankByToken(token: string): Promise<number> {
+    return this.waitingQueueRepositoryInterface.setRankByToken(
+      "WAITING",
+      token,
+      Date.now(),
+    );
+  }
+
   getTokensAfter5Minutes(): Promise<WaitingQueue[]> {
     const fiveMinutesAgo = new Date(new Date().getTime() - 5 * 60 * 1000);
 

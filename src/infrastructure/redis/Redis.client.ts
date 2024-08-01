@@ -1,20 +1,38 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
+import { Injectable } from "@nestjs/common";
+import Redis from "ioredis";
 
 @Injectable()
 export class RedisClient {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  private readonly redis: Redis;
+
+  constructor() {
+    this.redis = new Redis({
+      host: "localhost",
+      port: 6379,
+    });
+  }
 
   async get(key: string): Promise<any> {
-    return this.cacheManager.get(key);
+    return this.redis.get(key);
   }
 
   async set(key: string, value: any, ttl?: number): Promise<void> {
-    await this.cacheManager.set(key, value, ttl);
+    if (ttl) {
+      await this.redis.set(key, value, "EX", ttl);
+    } else {
+      await this.redis.set(key, value);
+    }
   }
 
   async delete(key: string): Promise<void> {
-    await this.cacheManager.del(key);
+    await this.redis.del(key);
+  }
+
+  async zadd(key: string, score: number, member: string): Promise<number> {
+    return this.redis.zadd(key, score, member);
+  }
+
+  async zrank(key: string, member: string): Promise<number | null> {
+    return this.redis.zrank(key, member);
   }
 }
