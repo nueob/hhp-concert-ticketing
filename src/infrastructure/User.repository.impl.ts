@@ -28,7 +28,6 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
     if (transactionalEntityManager) {
       return UserMapper.mapToUserDomain(
         await transactionalEntityManager.getRepository(UserEntity).findOne({
-          relations: { userQueueList: true },
           where: {
             uuid,
           },
@@ -38,7 +37,6 @@ export class UserRepositoryImpl implements UserRepositoryInterface {
 
     return UserMapper.mapToUserDomain(
       await this.userRepository.findOne({
-        relations: { userQueueList: true },
         where: {
           uuid,
         },

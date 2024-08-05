@@ -12,7 +12,6 @@ import { EntityModule } from "./modules/Entity.module";
 import { OrderModule } from "./modules/Order.module";
 import { UserModule } from "./modules/User.module";
 import { UserQueueModule } from "./modules/UserQueue.module";
-import { UserQueueEntity } from "./infrastructure/entity/UserQueue.entity";
 import { ConcertEntity } from "./infrastructure/entity/Concert.entity";
 import { OrderTicketEntity } from "./infrastructure/entity/OrderTicket.entity";
 import { ReservationTicketEntity } from "./infrastructure/entity/ReservationTicket.entity";
@@ -50,7 +49,6 @@ import { HttpCacheInterceptor } from "libs/interceptor/HttpCache.interceptor";
         SeatEntity,
         UserEntity,
         UserPointLogEntity,
-        UserQueueEntity,
       ],
     }),
     ConfigModule.forRoot({

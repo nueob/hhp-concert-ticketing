@@ -5,7 +5,6 @@ import {
   OneToMany,
   VersionColumn,
 } from "typeorm";
-import { UserQueueEntity } from "./UserQueue.entity";
 import { UserPointLogEntity } from "./UserPointLog.entity";
 import { ReservationTicketEntity } from "./ReservationTicket.entity";
 
@@ -19,11 +18,6 @@ export class UserEntity {
 
   @VersionColumn()
   version: number;
-
-  @OneToMany(() => UserQueueEntity, (m) => m.user, {
-    createForeignKeyConstraints: false,
-  })
-  userQueueList?: UserQueueEntity[];
 
   @OneToMany(() => UserPointLogEntity, (m) => m.user, {
     createForeignKeyConstraints: false,

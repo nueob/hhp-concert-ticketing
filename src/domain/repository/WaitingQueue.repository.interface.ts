@@ -9,4 +9,5 @@ export interface WaitingQueueRepositoryInterface {
   findRankByToken(key: string, token: string): Promise<number>;
   setRankByToken(key: string, token: string, score: number): Promise<number>;
   setToken(key: string, value: string, ttl: number): Promise<void>;
+  expireToken(key: string): Promise<void>;
 }

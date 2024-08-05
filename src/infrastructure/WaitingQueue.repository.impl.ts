@@ -1,10 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
 
 import { WaitingQueueRepositoryInterface } from "../domain/repository/WaitingQueue.repository.interface";
-
-import { UserQueueEntity } from "./entity/UserQueue.entity";
 
 import { RedisClient } from "./redis/Redis.client";
 
@@ -12,11 +8,7 @@ import { RedisClient } from "./redis/Redis.client";
 export class WaitingQueueRepositoryImpl
   implements WaitingQueueRepositoryInterface
 {
-  constructor(
-    @InjectRepository(UserQueueEntity)
-    private readonly userQueueRepository: Repository<UserQueueEntity>,
-    private readonly redisClient: RedisClient,
-  ) {}
+  constructor(private readonly redisClient: RedisClient) {}
 
   findByPattern(pattern: string): Promise<string[]> {
     return this.redisClient.keys(pattern);
