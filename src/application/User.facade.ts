@@ -4,18 +4,30 @@ import { Injectable } from "@nestjs/common";
 import { UserService } from "../domain/service/User.service";
 import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 import { UserErrorCodeEnum } from "../enum/UserErrorCode.enum";
+import { QueueService } from "@root/domain/service/Queue.service";
 
 @Injectable()
 export class UserFacade {
   constructor(
     private readonly userService: UserService,
     private readonly dataSource: DataSource,
+    private readonly queueService: QueueService,
   ) {}
 
-  async checkUserActivation(uuid: string): Promise<boolean> {
-    const user = await this.userService.findByUuid(uuid);
+  async findRank(uuid: string): Promise<number> {
+    /**
+     * 1. 대기열에 등록되어 있는 지 확인 -> 등록 되어 있다면 순위 "반환"
+     * 2. 대기열 등록
+     * 3. 대기열 순위 반환
+     */
+    const waitingRank = await this.queueService.findWaitingRankByToken(uuid);
+    if (waitingRank > 0) {
+      return waitingRank;
+    }
 
-    return user.isActive();
+    await this.queueService.setWaitingRankByToken(uuid);
+
+    return this.queueService.findWaitingRankByToken(uuid);
   }
 
   async findPointByUuid(uuid: string): Promise<number> {

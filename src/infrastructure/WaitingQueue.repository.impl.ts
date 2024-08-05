@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { WaitingQueueRepositoryInterface } from "../domain/repository/WaitingQueue.repository.interface";
+import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+
+import { WaitingQueueRepositoryInterface } from "../domain/repository/WaitingQueue.repository.interface";
+
 import { UserQueueEntity } from "./entity/UserQueue.entity";
-import { In, LessThan, Repository } from "typeorm";
-import { WaitingQueue } from "@root/domain/WaitingQueue.domain";
-import { WaitingQueueMapper } from "@root/mapper/WaitingQueue.mapper";
-import { WaitingQueueStatusEnum } from "@root/enum/WaitingQueueStatus.enum";
+
+import { RedisClient } from "./redis/Redis.client";
 
 @Injectable()
 export class WaitingQueueRepositoryImpl
@@ -14,48 +15,38 @@ export class WaitingQueueRepositoryImpl
   constructor(
     @InjectRepository(UserQueueEntity)
     private readonly userQueueRepository: Repository<UserQueueEntity>,
+    private readonly redisClient: RedisClient,
   ) {}
 
-  async findAfterTime(time: Date): Promise<WaitingQueue[]> {
-    const tokenList = await this.userQueueRepository.find({
-      where: {
-        created_at: LessThan(time),
-      },
-    });
-
-    return tokenList.map((token) => {
-      return WaitingQueueMapper.mapToWaitingQueueDomain(token);
-    });
+  findByPattern(pattern: string): Promise<string[]> {
+    return this.redisClient.keys(pattern);
   }
 
-  async findByLimitCount(count: number): Promise<WaitingQueue[]> {
-    const tokenList = await this.userQueueRepository.find({
-      order: {
-        created_at: "DESC",
-      },
-      take: count,
-    });
-
-    return tokenList.map((token) => {
-      return WaitingQueueMapper.mapToWaitingQueueDomain(token);
-    });
+  findByToken(token: string): Promise<string> {
+    return this.redisClient.get(token);
   }
 
-  async expireOldTokens(ids: number[]): Promise<void> {
-    const userQueueEntity = new UserQueueEntity();
-    userQueueEntity.status = WaitingQueueStatusEnum.만료;
-
-    await this.userQueueRepository.update({ id: In(ids) }, userQueueEntity);
-
-    return;
+  findRankList(
+    key: string,
+    startIndex: number,
+    endIndex: number,
+  ): Promise<string[]> {
+    return this.redisClient.zrange(key, startIndex, endIndex);
   }
 
-  async activatePendingTokens(ids: number[]): Promise<void> {
-    const userQueueEntity = new UserQueueEntity();
-    userQueueEntity.status = WaitingQueueStatusEnum.활성화;
+  findRankByToken(key: string, token: string): Promise<number> {
+    return this.redisClient.zrank(key, token);
+  }
 
-    await this.userQueueRepository.update({ id: In(ids) }, userQueueEntity);
+  setToken(key: string, value: string, ttl: number): Promise<void> {
+    return this.redisClient.set(key, value, ttl);
+  }
 
-    return;
+  setRankByToken(key: string, token: string, score: number): Promise<number> {
+    return this.redisClient.zadd(key, score, token);
+  }
+
+  expireToken(key: string): Promise<void> {
+    return this.redisClient.delete(key);
   }
 }

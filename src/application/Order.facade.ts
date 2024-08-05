@@ -6,6 +6,7 @@ import { ConcertService } from "../domain/service/Concert.service";
 import { OrderStepEnum } from "../enum/OrderStep.enum";
 import { UserService } from "../domain/service/User.service";
 import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
+import { QueueService } from "../domain/service/Queue.service";
 
 @Injectable()
 export class OrderFacade {
@@ -13,6 +14,7 @@ export class OrderFacade {
     private readonly orderService: OrderService,
     private readonly concertService: ConcertService,
     private readonly userService: UserService,
+    private readonly queueService: QueueService,
   ) {}
 
   async pay(uuid: string, reservationTicketId: number): Promise<void> {
@@ -56,6 +58,7 @@ export class OrderFacade {
         seat.price,
         PointTransactionTypeEnum.사용,
       ),
+      this.queueService.expireActiveTokenByUuid(uuid),
     ]);
   }
 }
