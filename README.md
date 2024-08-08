@@ -47,3 +47,102 @@
 - DB 부하를 줄일 수 있어 성능 개선에도 도움이 되어 사용자 측면에서도 대기해야 하는 시간이 길어지지 않아 경험 측면에서 개선됨
 - 대기열 순번 조회를 하게 된다면 redis에서 제공하는 Sorted Set(Sorted Set) 데이터 구조에서 쉽게 연산 할 수 있음
 - 토큰 만료 로직을 따로 두지 않아도 TTL로 토큰 관리 가능 (관리포인트가 줄어듦)
+
+## (8주차) 시나리오 Query 분석 및 DB Index 설계
+
+- 가정
+  - 1000 명의 user
+  - 각 콘서트는 무조건 `20개의 performance`와 `100개의 seat`와 연결됨
+    - 현재 콘서트 예약 가능한 콘서트 3개
+      - 각 콘서트는 현재 60개씩 예약이 된 상태
+    - 콘서트 예매 예정 콘서트 97 개
+
+### 1. 전체콘서트 조회
+
+- **AS-IS**
+  - 예약 가능한 날짜를 조회 하기 위해 performance 테이블을 JOIN 하여 find 합니다.
+    ![Example Image](images/8주차-2.png)
+  - 실행계획
+    ![Example Image](images/8주차-3.png)
+  - 조회 시 (0.0097sec)
+    ![Example Image](images/8주차-5.png)
+- **TO-BE**
+
+  - concert_id index 추가
+    ![Example Image](images/8주차-6.png)
+
+    - `index`를 추가하여도 계속 `FULL SCAN` 을 하는 모습
+    - 데이터가 많지 않아서 옵티마이저가 full scan이 더 빠르다고 판단한 거 같습니다.
+    - `index` 를 사용하지 않는 모습
+
+    ![Example Image](images/8주차-7.png)
+
+    - `performance` 테이블에서 `concert_id`가 있는 레코드만 선택하여 `performance` 테이블의 데이터가 필터링되고 `performance` 테이블에서 매칭되는 데이터를 기준으로 결과를 필터링 → `INNER JOIN` 과 같은 역할
+
+  - 조회 시 0.0097 sec → 0.0042 sec
+    ![Example Image](images/8주차-8.png)
+
+- **결론**
+
+  - perfomance 테이블에 concert_id 인덱스 추가
+
+    |             | 인덱스 O | 인덱스 X |
+    | ----------- | -------- | -------- |
+    | 데이터 조회 | 0.0042   | 0.0097   |
+
+### 2. 특정 콘서트 조회 By 콘서트 ID
+
+- **AS-IS**
+  - 콘서트 ID를 이용하여 해당하는 콘서트와 공연, 좌석 정보를 불러옵니다.
+  - 위 분석에서 `performance` 테이블에 `concert_id` 인덱스 추가한 상태입니다.
+    ![Example Image](images/8주차-9.png)
+  - 실행 계획
+    ![Example Image](images/8주차-10.png)
+    - seat 테이블에서 199836 개 라는 엄청 많은 row를 조회함
+    - `seat` 테이블의 `performance_id` 인덱스를 걸게 된다면 ?
+  - 조회 시 (0.008sec)
+    ![Example Image](images/8주차-11.png)
+- **TO-BE**
+  - 실행 계획
+    ![Example Image](images/8주차-12.png)
+  - 조회 시 (0.0039 sec)
+    ![Example Image](images/8주차-13.png)
+
+### 3. 특정 콘서트 조회 By 좌석 ID
+
+- 위의 분석을 토대로
+
+  - `perfomance` 테이블에 `concert_id` 인덱스 추가
+  - `seat` 테이블 `performance_id` 추가
+
+  한 이후에 추가되어야 할 인덱스가 없는 것으로 판단하였습니다!
+
+### 4. 특정 공연 조회 By 좌석 ID
+
+- 위의 분석을 토대로
+
+  - `perfomance` 테이블에 `concert_id` 인덱스 추가
+  - `seat` 테이블 `performance_id` 추가
+
+  한 이후에 추가되어야 할 인덱스가 없는 것으로 판단하였습니다!
+
+### 5. 특정 좌석 조회 By 좌석 ID
+
+- 위의 분석을 토대로
+
+  - `perfomance` 테이블에 `concert_id` 인덱스 추가
+  - `seat` 테이블 `performance_id` 추가
+
+  한 이후에 추가되어야 할 인덱스가 없는 것으로 판단하였습니다!
+
+### 6. 특정 예약 조회 By 예약 ID
+
+- **AS-IS**
+  - 예약 ID를 통해 예약 건과 예약된 좌석 정보를 조회합니다.
+    ![Example Image](images/8주차-14.png)
+  - 실행 계획
+    ![Example Image](images/8주차-15.png)
+  - 조회 시
+    ![Example Image](images/8주차-16.png)
+- **결론**
+  - 이미 PRIMARY key로 잘 실행이 되고 있어 인덱스를 걸지 않아도 될 거 같습니다!
