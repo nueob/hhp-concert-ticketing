@@ -146,3 +146,53 @@
     ![Example Image](images/8주차-16.png)
 - **결론**
   - 이미 PRIMARY key로 잘 실행이 되고 있어 인덱스를 걸지 않아도 될 거 같습니다!
+
+## (8주차) 서비스 분리
+
+### 서비스 분리
+
+![Example Image](images/8주차-19.png)
+시나리오에 따라서 `콘서트 Service`, `예약 Service`, `결제 Service`, `포인트 Service` 로 분리 합니다.
+
+### 예약 로직
+
+![Example Image](images/8주차-22.png)
+
+1. 트랜잭션 시작
+2. `예약 Service`에서 `콘서트 좌석 정보 요청 EVENT` 호출
+3. `콘서트 좌석 정보 요청 EVENT`를 구독하고 있던 `콘서트 Service`에서 콘서트 좌석 정보 조회 후, `콘서트 좌석 정보 조회 완료 EVENT` 호출
+4. `콘서트 좌석 정보 조회 완료 EVENT`를 구독하고 있던 `예약 Service`에서 콘서트 좌석 정보 확인
+
+   a. 이미 결제된 좌석일 경우 이미 결제된 좌석 ERROR
+
+5. 예약 정보 저장
+6. `예약 Service`에서 `좌석 예약 완료 EVENT` 호출
+7. `좌석 예약 완료 EVENT`를 구독하고 있던 `콘서트 Service` 에서 좌석 정보 UPDATE
+
+   a. 좌석 정보 변경 중 오류 시 `좌석 정보 UPDATE 실패 EVENT` 호출
+
+   b. `좌석 정보 UPDATE 실패 EVENT`를 구독하고 있던 `콘서트 Servcie` 에서 트랜잭션 rollback 실행
+
+8. 트랜잭션 COMMIT
+
+### 결제 로직
+
+![Example Image](images/8주차-18.png)
+
+1. 트랜잭션 시작
+2. `결제 Service`에서 `예약 정보 요청 EVENT` 를 호출한다.
+3. `예약 정보 요청 EVENT`를 구독 중인 `예약 Service`에서 이벤트를 호출 받고, 예약 정보 조회 후 해당 데이터를 전달해줄 `예약 정보 조회 완료 EVENT` 를 호출한다.
+4. `예약 정보 요청 완료 EVENT`를 구독 중인 `결제 Service`에서 이벤트 호출을 받고, 예약 정보를 확인한다.
+
+   a. 결제 가능한 시간이 지났을 경우 결제 가능한 시간 초과 ERROR를 띄운다.
+
+5. `결제 Service`에서 `포인트 차감 EVENT`를 호출한다.
+6. `포인트 차감 EVENT`를 구독 중인 `포인트 Service`에서 사용자 포인트를 조회한다.
+
+   a. 잔액 부족일 경우 `잔액 부족 EVENT`를 호출한다.
+
+   b. `잔액 부족 EVENT`를 구독 중인 `결제 Service`에서 에러를 던진다.
+
+7. `포인트 Service`에서 `포인트 차감 완료 EVENT`를 호출한다. 8.`포인트 차감 완료 EVENT`를 구독 중인 `결제 Service`에서 결제 완료 처리 후 정보를 저장한다.
+
+8. 트랜잭션 COMMIT
