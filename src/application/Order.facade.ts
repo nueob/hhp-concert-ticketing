@@ -1,4 +1,6 @@
 import { Injectable } from "@nestjs/common";
+import { CommandBus } from "@nestjs/cqrs";
+
 import { OrderService } from "../domain/service/Order.service";
 import { OrderErrorCodeEnum } from "../enum/OrderErrorCode.enum";
 import { OrderTicket } from "../domain/OrderTicket.domain";
@@ -7,6 +9,7 @@ import { OrderStepEnum } from "../enum/OrderStep.enum";
 import { UserService } from "../domain/service/User.service";
 import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 import { QueueService } from "../domain/service/Queue.service";
+import { SavePaymentInfoCommand } from "./command/SavePaymentInfo.command";
 
 @Injectable()
 export class OrderFacade {
@@ -15,6 +18,7 @@ export class OrderFacade {
     private readonly concertService: ConcertService,
     private readonly userService: UserService,
     private readonly queueService: QueueService,
+    private commandBus: CommandBus,
   ) {}
 
   async pay(uuid: string, reservationTicketId: number): Promise<void> {
@@ -49,7 +53,7 @@ export class OrderFacade {
       new Date(),
     );
 
-    await Promise.all([
+    const [createdOrderTicket] = await Promise.all([
       this.orderService.createOrderTicket(orderTicket),
       this.orderService.isFinishedReservation(reservationTicketId),
       this.userService.updatePoint(uuid, amount),
@@ -60,5 +64,9 @@ export class OrderFacade {
       ),
       this.queueService.expireActiveTokenByUuid(uuid),
     ]);
+
+    this.commandBus.execute(
+      new SavePaymentInfoCommand(createdOrderTicket.id, uuid, amount),
+    );
   }
 }
