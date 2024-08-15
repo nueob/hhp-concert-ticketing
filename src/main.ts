@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { WinstonLogger } from "../libs/config/WinstonLogger";
+import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -19,6 +20,20 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
+
+  const kafkaMicroservice = app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: ["localhost:9092"],
+      },
+      consumer: {
+        groupId: "nestjs-group", // 소비자 그룹 ID 설정
+      },
+    },
+  });
+
+  await app.startAllMicroservices();
 
   await app.listen(3000);
 }
