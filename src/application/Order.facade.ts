@@ -1,5 +1,4 @@
-import { Injectable } from "@nestjs/common";
-import { CommandBus } from "@nestjs/cqrs";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { OrderService } from "../domain/service/Order.service";
 import { OrderErrorCodeEnum } from "../enum/OrderErrorCode.enum";
@@ -9,7 +8,8 @@ import { OrderStepEnum } from "../enum/OrderStep.enum";
 import { UserService } from "../domain/service/User.service";
 import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 import { QueueService } from "../domain/service/Queue.service";
-import { SavePaymentInfoCommand } from "./command/SavePaymentInfo.command";
+import { PayDoneEventPublisher } from "../domain/event/PayDone.event-publisher";
+import { PayDoneEvent } from "../domain/event/PayDone.event";
 
 @Injectable()
 export class OrderFacade {
@@ -18,7 +18,8 @@ export class OrderFacade {
     private readonly concertService: ConcertService,
     private readonly userService: UserService,
     private readonly queueService: QueueService,
-    private commandBus: CommandBus,
+    @Inject("PayDoneEventPublisher")
+    private readonly payDoneEventPublisher: PayDoneEventPublisher,
   ) {}
 
   async pay(uuid: string, reservationTicketId: number): Promise<void> {
@@ -65,8 +66,8 @@ export class OrderFacade {
       this.queueService.expireActiveTokenByUuid(uuid),
     ]);
 
-    this.commandBus.execute(
-      new SavePaymentInfoCommand(createdOrderTicket.id, uuid, amount),
+    this.payDoneEventPublisher.triggerEvent(
+      new PayDoneEvent(createdOrderTicket.id, uuid, amount),
     );
   }
 }
