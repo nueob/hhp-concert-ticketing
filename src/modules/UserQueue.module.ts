@@ -9,6 +9,10 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { CacheModule } from "@nestjs/cache-manager";
 import { redisStore } from "cache-manager-redis-store";
 import { RedisClient } from "@root/infrastructure/redis/Redis.client";
+import { OutBoxService } from "@root/domain/service/OutBox.service";
+import { OutBoxRepositoryImpl } from "@root/infrastructure/OutBox.repository.impl";
+import { PayDoneMessageSenderImpl } from "@root/infrastructure/kafka/PayDone.message-sender.impl";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 @Module({
   imports: [
@@ -28,15 +32,35 @@ import { RedisClient } from "@root/infrastructure/redis/Redis.client";
       }),
       inject: [ConfigService],
     }),
+    ClientsModule.register([
+      {
+        name: "PAY_DONE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            brokers: ["localhost:9092"],
+          },
+        },
+      },
+    ]),
   ],
   providers: [
     RedisClient,
     UserQueueScheduler,
     SchedulerFacade,
     QueueService,
+    OutBoxService,
     {
       provide: "WaitingQueueRepositoryInterface",
       useClass: WaitingQueueRepositoryImpl,
+    },
+    {
+      provide: "OutBoxRepositoryInterface",
+      useClass: OutBoxRepositoryImpl,
+    },
+    {
+      provide: "PayDoneMessageSender",
+      useClass: PayDoneMessageSenderImpl,
     },
   ],
 })

@@ -14,6 +14,12 @@ export class OutBoxRepositoryImpl implements OutBoxRepositoryInterface {
     private readonly outBoxRepository: Repository<OutBoxEntity>,
   ) {}
 
+  async find(): Promise<OutBox[]> {
+    const outBoxList = await this.outBoxRepository.find();
+
+    return outBoxList.map((outBox) => OutBoxMapper.mapToOutBoxDomain(outBox));
+  }
+
   async insert(outBox: OutBox): Promise<OutBox> {
     const outBoxEntity = this.outBoxRepository.create(
       OutBoxMapper.mapToOutBoxEntity(outBox),

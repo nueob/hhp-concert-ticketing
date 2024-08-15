@@ -14,7 +14,9 @@ export class OrderCreatedHandler implements IEventHandler<PayDoneEvent> {
     console.log("금액 : " + event.price);
     // 외부 API 호출
     return this.payDoneMessageSender.sendMessage(
-      new PayDoneMessage(event.orderId, event.uuid, event.price),
+      JSON.stringify(
+        new PayDoneMessage(event.orderId, event.uuid, event.price),
+      ),
     );
   }
 }

@@ -13,4 +13,10 @@ export class OutBoxService {
   async insert(outBox: OutBox): Promise<OutBox> {
     return this.outBoxRepositoryInterface.insert(outBox);
   }
+
+  async findUnfinishedTasks(): Promise<OutBox[]> {
+    const outboxList = await this.outBoxRepositoryInterface.find();
+
+    return outboxList.filter((outbox) => !outbox.isFinish);
+  }
 }

@@ -8,6 +8,11 @@ export class UserQueueScheduler {
 
   @Cron(CronExpression.EVERY_SECOND)
   async handleUserQueueStatus() {
-    await this.schedulerFacade.execute();
+    await this.schedulerFacade.handleUserQueueStatus();
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async handleOutBox() {
+    await this.schedulerFacade.handleOutBox();
   }
 }

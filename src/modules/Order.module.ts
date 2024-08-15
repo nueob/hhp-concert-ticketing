@@ -13,9 +13,12 @@ import { UserService } from "../domain/service/User.service";
 import { QueueService } from "../domain/service/Queue.service";
 import { OrderService } from "../domain/service/Order.service";
 
+import { OutBoxService } from "@root/domain/service/OutBox.service";
+
 import { OrderRepositoryImpl } from "../infrastructure/Order.repository.impl";
 import { ConcertRepositoryImpl } from "../infrastructure/Concert.repository.impl";
 import { UserRepositoryImpl } from "../infrastructure/User.repository.impl";
+import { OutBoxRepositoryImpl } from "@root/infrastructure/OutBox.repository.impl";
 
 import { PayDoneEventPublisherImpl } from "../infrastructure/event/PayDone.event-publisher-impl";
 import { WaitingQueueRepositoryImpl } from "@root/infrastructure/WaitingQueue.repository.impl";
@@ -51,6 +54,7 @@ import { RedisClient } from "@root/infrastructure/redis/Redis.client";
     UserService,
     QueueService,
     RedisClient,
+    OutBoxService,
     {
       provide: "PayDoneEventPublisher",
       useClass: PayDoneEventPublisherImpl,
@@ -74,6 +78,10 @@ import { RedisClient } from "@root/infrastructure/redis/Redis.client";
     {
       provide: "PayDoneMessageSender",
       useClass: PayDoneMessageSenderImpl,
+    },
+    {
+      provide: "OutBoxRepositoryInterface",
+      useClass: OutBoxRepositoryImpl,
     },
   ],
 })
