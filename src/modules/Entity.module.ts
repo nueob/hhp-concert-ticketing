@@ -8,6 +8,7 @@ import { SeatEntity } from "../infrastructure/entity/Seat.entity";
 import { UserEntity } from "../infrastructure/entity/User.entity";
 import { UserPointLogEntity } from "../infrastructure/entity/UserPointLog.entity";
 import { PerformanceEntity } from "../infrastructure/entity/Performance.entity";
+import { OutBoxEntity } from "../infrastructure/entity/OutBox.entity";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PerformanceEntity } from "../infrastructure/entity/Performance.entity";
       SeatEntity,
       UserEntity,
       UserPointLogEntity,
+      OutBoxEntity,
     ]),
   ],
   exports: [TypeOrmModule],

@@ -10,6 +10,9 @@ import { PointTransactionTypeEnum } from "../enum/PointTransactionType.enum";
 import { QueueService } from "../domain/service/Queue.service";
 import { PayDoneEventPublisher } from "../domain/event/PayDone.event-publisher";
 import { PayDoneEvent } from "../domain/event/PayDone.event";
+import { OutBoxService } from "@root/domain/service/OutBox.service";
+import { OutBox } from "@root/domain/OutBox.domain";
+import { TopicEnum } from "@root/enum/Topic.enum";
 
 @Injectable()
 export class OrderFacade {
@@ -18,6 +21,7 @@ export class OrderFacade {
     private readonly concertService: ConcertService,
     private readonly userService: UserService,
     private readonly queueService: QueueService,
+    private readonly outBoxService: OutBoxService,
     @Inject("PayDoneEventPublisher")
     private readonly payDoneEventPublisher: PayDoneEventPublisher,
   ) {}
@@ -65,6 +69,16 @@ export class OrderFacade {
       ),
       this.queueService.expireActiveTokenByUuid(uuid),
     ]);
+
+    await this.outBoxService.insert(
+      new OutBox(
+        null,
+        TopicEnum.결제완료.value,
+        JSON.stringify({ orderId: createdOrderTicket.id, uuid, amount }),
+        false,
+        new Date(),
+      ),
+    );
 
     this.payDoneEventPublisher.triggerEvent(
       new PayDoneEvent(createdOrderTicket.id, uuid, amount),
