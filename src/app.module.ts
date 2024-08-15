@@ -24,6 +24,7 @@ import { GlobalExceptionFilter } from "../libs/filter/GlobalException.filter";
 import { WinstonLogger } from "../libs/config/WinstonLogger";
 import { TransformInterceptor } from "../libs/interceptor/Transform.interceptor";
 import { HttpCacheInterceptor } from "libs/interceptor/HttpCache.interceptor";
+import { OutBoxEntity } from "./infrastructure/entity/OutBox.entity";
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HttpCacheInterceptor } from "libs/interceptor/HttpCache.interceptor";
         SeatEntity,
         UserEntity,
         UserPointLogEntity,
+        OutBoxEntity,
       ],
     }),
     ConfigModule.forRoot({
