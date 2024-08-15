@@ -70,7 +70,7 @@ export class OrderFacade {
       this.queueService.expireActiveTokenByUuid(uuid),
     ]);
 
-    await this.outBoxService.insert(
+    const outBox = await this.outBoxService.insert(
       new OutBox(
         null,
         TopicEnum.결제완료.value,
@@ -81,7 +81,7 @@ export class OrderFacade {
     );
 
     this.payDoneEventPublisher.triggerEvent(
-      new PayDoneEvent(createdOrderTicket.id, uuid, amount),
+      new PayDoneEvent(outBox.id, createdOrderTicket.id, uuid, amount),
     );
   }
 }

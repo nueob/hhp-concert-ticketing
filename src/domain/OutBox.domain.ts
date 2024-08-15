@@ -2,7 +2,7 @@ export class OutBox {
   private readonly _id: number;
   private readonly _topic: string;
   private readonly _message: string;
-  private readonly _isFinish: boolean;
+  private _isFinish: boolean;
   private readonly _createdAt: Date;
 
   constructor(
@@ -17,6 +17,10 @@ export class OutBox {
     this._message = message;
     this._isFinish = isFinish;
     this._createdAt = createdAt;
+  }
+
+  changeFinish() {
+    this._isFinish = true;
   }
 
   get id(): number {

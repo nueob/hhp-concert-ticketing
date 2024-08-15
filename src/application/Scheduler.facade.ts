@@ -42,13 +42,14 @@ export class SchedulerFacade {
     const outboxList = await this.outBoxService.findUnfinishedTasks();
     if (!outboxList.length) return;
 
-    await Promise.all(
-      outboxList.map(
+    await Promise.all([
+      ...outboxList.map(
         (outbox) =>
           outbox.topic === TopicEnum.결제완료.value &&
           this.payDoneMessageSender.sendMessage(outbox.message),
       ),
-    );
+      ...outboxList.map((outbox) => this.outBoxService.changeFinish(outbox.id)),
+    ]);
     return;
   }
 }
